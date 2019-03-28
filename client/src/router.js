@@ -1,26 +1,45 @@
-import Vue from "vue";
-import Router from "vue-router";
-import Home from "./views/Home.vue";
+import Vue from 'vue';
+import Router from 'vue-router';
+import Home from './components/Home.vue';
+import Game from './components/Game.vue';
+import CreateGame from './components/CreateGame.vue';
+import EnterGame from './components/EnterGame.vue';
+import WaitGame from './components/WaitGame.vue';
+import Match from './components/Match.vue';
 
 Vue.use(Router);
 
 export default new Router({
-  mode: "history",
+  mode: 'history',
   base: process.env.BASE_URL,
   routes: [
     {
-      path: "/",
-      name: "home",
+      path: '/',
+      name: 'home',
       component: Home
     },
     {
-      path: "/about",
-      name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "about" */ "./views/About.vue")
+      path: '/match',
+      name: 'match',
+      component: Match
+    },
+    {
+      path: '/game',
+      component: Game,
+      children: [
+        {
+          path: 'create',
+          component: CreateGame
+        },
+        {
+          path: 'enter',
+          component: EnterGame
+        },
+        {
+          path: 'wait',
+          component: WaitGame
+        }
+      ]
     }
   ]
 });

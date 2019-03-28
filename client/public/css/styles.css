@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css?family=Germania+One');
+
+html,
+body {
+	width: 100vw;
+	height: 100vh;
+
+	font-family: 'Germania One', cursive;
+}
+
+#main {
+	background-image: url(../img/main-background.jpg);
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+
+	width: 100vw;
+	height: 100vh;
+}
+
+.main-headline {
+	font-size: 12rem;
+	text-align: center;
+	position: relative;
+	color: #08628a;
+	padding-top: 3rem;
+}
+
+.main-headline .small {
+	position: absolute;
+	bottom: 0;
+	left: 6.5rem;
+	font-size: 2rem;
+	color: #949494;
+}
+
+.container {
+	background-color: rgba(255, 255, 255, 0.6);
+	min-height: 100vh;
+	padding: 0 6rem;
+
+	-webkit-box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.52);
+	-moz-box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.52);
+	box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.52);
+}
+
+.button-container {
+	margin-top: 14rem;
+}
+
+.btn-primary {
+	background-color: #08628a;
+	border-color: #08628a;
+}
+
+h2 {
+	text-align: center;
+	font-size: 5rem;
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 2px solid #08628a;
+}
