@@ -1,8 +1,8 @@
 const uuid = require('uuid');
 
 module.exports = class Player {
-	constructor(name) {
+	constructor(username) {
 		this.id = uuid.v4();
-		this.name = name;
+		this.username = username;
 	}
 };

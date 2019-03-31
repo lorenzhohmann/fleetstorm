@@ -4,8 +4,10 @@ import Home from './components/Home.vue';
 import Game from './components/Game.vue';
 import CreateGame from './components/CreateGame.vue';
 import EnterGame from './components/EnterGame.vue';
-import WaitGame from './components/WaitGame.vue';
+
 import Match from './components/Match.vue';
+import WaitingMatch from './components/WaitingMatch.vue';
+import PlayingMatch from './components/PlayingMatch.vue';
 
 Vue.use(Router);
 
@@ -20,8 +22,17 @@ export default new Router({
     },
     {
       path: '/match',
-      name: 'match',
-      component: Match
+      component: Match,
+      children: [
+        {
+          path: 'waiting',
+          component: WaitingMatch
+        },
+        {
+          path: 'playing',
+          component: PlayingMatch
+        }
+      ]
     },
     {
       path: '/game',
@@ -34,10 +45,6 @@ export default new Router({
         {
           path: 'enter',
           component: EnterGame
-        },
-        {
-          path: 'wait',
-          component: WaitGame
         }
       ]
     }

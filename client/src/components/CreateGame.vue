@@ -3,17 +3,27 @@
 		<h2>Spiel erstellen</h2>
 
 		<div class="content-container">
-			<div class="form-group">
-				<input
-					type="text"
-					class="form-control"
-					placeholder="Benutzername"
-					v-model="username"
-				/>
+			<div class="row form-group">
+				<div class="col">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Benutzername"
+						v-model="username"
+					/>
+				</div>
+				<div class="col">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Spiel-Code"
+						v-model="gameCode"
+					/>
+				</div>
 			</div>
 			<button
 				class="btn btn-success btn-block btn-lg"
-				v-if="username != ''"
+				v-if="username != '' && gameCode != ''"
 				v-on:click="createGame()"
 			>
 				Spiel erstellen
@@ -25,30 +35,56 @@
 
 <script>
 import GameService from '@/services/GameService.js';
+import PlayerService from '@/services/PlayerService.js';
 
 export default {
 	name: 'CreateGame',
 	data() {
 		return {
 			username: '',
-			error: ''
+			error: '',
+			gameCode: ''
 		};
 	},
 	methods: {
 		async createGame() {
 			try {
-				const result = await GameService.createGame();
-				this.addPlayerToGame(result.id, this.username);
+				const result = await GameService.createGame(this.gameCode);
+				this.addPlayerToGame(result.gameCode, this.username);
 			} catch (err) {
-				this.error = err;
+				this.error = err.response.data.error;
 			}
 		},
-		async addPlayerToGame(gameID, username) {
+		async addPlayerToGame(gameCode, username) {
+			this.error = '';
+
+			let player, game;
+
+			// create player
 			try {
-				const result = await GameService.addPlayerToGame(gameID, username);
+				player = await PlayerService.createPlayer(username);
 			} catch (err) {
-				this.error = err;
+				this.error = err.response.data.error;
+				GameServer.deleteGame(gameCode);
+				return;
 			}
+
+			// add player to game
+			try {
+				game = await GameService.addPlayerToGame(gameCode, player);
+			} catch (err) {
+				this.error = err.response.data.error;
+				GameService.deleteGame(gameCode);
+				PlayerService.deletePlayer(player.id);
+				return;
+			}
+
+			// set store vars
+			this.$store.dispatch('setGame', game);
+			this.$store.dispatch('setPlayer', player);
+
+			// redirect to match waiting area
+			this.$router.push('/match');
 		}
 	}
 };

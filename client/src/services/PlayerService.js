@@ -22,5 +22,8 @@ export default {
 				reject(err);
 			}
 		});
+	},
+	async deletePlayer(playerID) {
+		axios.delete(url, {playerID});
 	}
 };

@@ -1,6 +1,7 @@
 const express = require('express');
-const socket = require('socket.io');
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
@@ -15,4 +16,4 @@ app.use('/api', router);
 // fallback for RestAPI
 app.use((req, res) => res.status(404).send());
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+http.listen(PORT, () => console.log(`Server running on port ${PORT}`));

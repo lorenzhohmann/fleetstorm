@@ -3,25 +3,27 @@
 		<h2>Spiel beitreten</h2>
 
 		<div class="content-container">
-			<div class="form-group">
-				<input
-					type="text"
-					class="form-control"
-					placeholder="Spiel-ID"
-					v-model="gameID"
-				/>
-			</div>
-			<div class="form-group">
-				<input
-					type="text"
-					class="form-control"
-					placeholder="Benutzername"
-					v-model="username"
-				/>
+			<div class="row form-group">
+				<div class="col">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Benutzername"
+						v-model="username"
+					/>
+				</div>
+				<div class="col">
+					<input
+						type="text"
+						class="form-control"
+						placeholder="Spiel-ID"
+						v-model="gameCode"
+					/>
+				</div>
 			</div>
 			<button
 				class="btn btn-success btn-block btn-lg"
-				v-if="username != '' && gameID != ''"
+				v-if="username != '' && gameCode != ''"
 			>
 				Spiel beitreten
 			</button>
@@ -35,7 +37,7 @@ export default {
 	name: 'CreateGame',
 	data() {
 		return {
-			gameID: '',
+			gameCode: '',
 			username: '',
 			error: ''
 		};
