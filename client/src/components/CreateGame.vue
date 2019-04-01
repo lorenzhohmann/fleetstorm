@@ -49,42 +49,20 @@ export default {
 	methods: {
 		async createGame() {
 			try {
-				const result = await GameService.createGame(this.gameCode);
-				this.addPlayerToGame(result.gameCode, this.username);
+				const game = await GameService.createGame(this.gameCode);
 			} catch (err) {
 				this.error = err.response.data.error;
 			}
-		},
-		async addPlayerToGame(gameCode, username) {
-			this.error = '';
 
-			let player, game;
-
-			// create player
 			try {
-				player = await PlayerService.createPlayer(username);
+				const player = await PlayerService.createPlayer(this.username);
+				this.$store.dispatch('setPlayer', player);
+
+				this.$router.push('/match/' + this.gameCode);
 			} catch (err) {
+				// TODO delete created game
 				this.error = err.response.data.error;
-				GameServer.deleteGame(gameCode);
-				return;
 			}
-
-			// add player to game
-			try {
-				game = await GameService.addPlayerToGame(gameCode, player);
-			} catch (err) {
-				this.error = err.response.data.error;
-				GameService.deleteGame(gameCode);
-				PlayerService.deletePlayer(player.id);
-				return;
-			}
-
-			// set store vars
-			this.$store.dispatch('setGame', game);
-			this.$store.dispatch('setPlayer', player);
-
-			// redirect to match waiting area
-			this.$router.push('/match');
 		}
 	}
 };

@@ -13,8 +13,11 @@ module.exports = class Manager {
 	static getGames() {
 		return games;
 	}
+	static getGame(gameCode) {
+		return games.filter(g => g.gameCode == gameCode)[0];
+	}
 	static gameCodeExists(gameCode) {
-		return games.filter(g => g.gameCode == gameCode).length >= 1;
+		return this.getGame();
 	}
 	static usernameExists(username) {
 		return players.filter(p => p.username == username).length >= 1;
@@ -23,6 +26,9 @@ module.exports = class Manager {
 		const player = new Player(username);
 		players.push(player);
 		return player;
+	}
+	static getPlayer(playerID) {
+		return players.filter(p => p.id === playerID)[0];
 	}
 	static deletePlayer(username) {
 		players = players.filter(p => p.username !== username);

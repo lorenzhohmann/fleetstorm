@@ -8,6 +8,15 @@ router.get('/game', (req, res) => {
 	res.send(games);
 });
 
+router.get('/game/:gameCode', (req, res) => {
+	const game = Manager.getGame(req.params.gameCode);
+	if (!game) {
+		res.sendStatus(404);
+		return;
+	}
+	res.status(200).send(game);
+});
+
 router.post('/game', (req, res) => {
 	const gameCode = req.body.gameCode;
 	if (Manager.gameCodeExists(gameCode)) {
@@ -19,6 +28,22 @@ router.post('/game', (req, res) => {
 	}
 	const newGame = Manager.addGame(gameCode);
 	res.status(201).send(newGame);
+});
+
+router.post('/game/:gameCode/addPlayer/:playerID', (req, res) => {
+	const gameCode = req.params.gameCode;
+	const playerID = req.params.playerID;
+
+	const game = Manager.getGame(gameCode);
+	const player = Manager.getPlayer(playerID);
+
+	if (!game || !player) {
+		res.sendStatus(400);
+		return;
+	}
+
+	game.addPlayer(player);
+	res.status(200).send(game);
 });
 
 router.delete('/game', (req, res) => {

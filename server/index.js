@@ -10,6 +10,16 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
+io.on('connection', function(socket) {
+	socket.on('playerJoinGame', data => {
+		io.emit('updateGameVars');
+	});
+
+	socket.on('disconnect', data => {
+		io.emit('updateGameVars');
+	});
+});
+
 const router = require('./routes/router.js');
 app.use('/api', router);
 
