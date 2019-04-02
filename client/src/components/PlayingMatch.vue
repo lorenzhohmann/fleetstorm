@@ -1,20 +1,40 @@
 <template>
 	<div>
-		<div class="match-area"></div>
+			<Matchfield v-bind:game="game" />
+		</div>
 	</div>
 </template>
 
 <script>
+import GameService from '@/services/GameService.js';
+import Matchfield from '@/components/Matchfield.vue';
+
 export default {
-	name: 'home',
+	name: 'PlayingMatch',
 	data() {
 		return {
-			socket: null
+			game: null
 		};
 	},
-	created() {
-		socket = io();
-		console.log(socket);
+	components: {
+		Matchfield
+	},
+	async created() {
+		const gameCode = this.$route.params.gameCode;
+		try {
+			GameService.getGame(gameCode).then(async game => {
+				
+
+				this.game = game;
+			});
+		} catch (err) {
+			this.$router.push({
+				name: 'home',
+				params: {
+					error: 'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #PM)'
+				}
+			});
+		}
 	}
 };
 </script>

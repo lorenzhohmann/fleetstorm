@@ -13,6 +13,16 @@ export default {
 			}
 		});
 	},
+	async getGame(gameCode) {
+		return new Promise(async (resolve, reject) => {
+			try {
+				const result = await axios.get(`${url}/${gameCode}`);
+				resolve(result.data);
+			} catch (err) {
+				reject(err);
+			}
+		});
+	},
 	async addPlayerToGame(gameCode, playerID) {
 		return new Promise(async (resolve, reject) => {
 			try {
@@ -37,5 +47,8 @@ export default {
 				reject(err);
 			}
 		});
+	},
+	playerIsInGame(player, game) {
+		return game.players.filter(p => p.id === player.id).length;
 	}
 };

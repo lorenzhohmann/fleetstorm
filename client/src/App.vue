@@ -1,5 +1,6 @@
 <template>
 	<div id="main">
+		<div id="bg"></div>
 		<div class="container">
 			<h1 class="main-headline">
 				Battleship

@@ -48,19 +48,29 @@ export default {
 	},
 	methods: {
 		async createGame() {
+			// validate username
+			if (!PlayerService.validateUsername(this.username)) {
+				this.error =
+					'Der Benutzername darf nur aus Ziffern, Großbuchstaben und Kleinbuchstaben bestehen und muss eine Länge zwischen drei und zehn Zeichen haben.';
+				return;
+			}
+
+			// create game
 			try {
 				const game = await GameService.createGame(this.gameCode);
 			} catch (err) {
 				this.error = err.response.data.error;
+				return;
 			}
 
+			// create player and redirect to waiting area
 			try {
 				const player = await PlayerService.createPlayer(this.username);
 				this.$store.dispatch('setPlayer', player);
 
-				this.$router.push('/match/' + this.gameCode);
+				this.$router.push('/match/' + this.gameCode + '/waiting');
 			} catch (err) {
-				// TODO delete created game
+				GameService.deleteGame(this.gameCode);
 				this.error = err.response.data.error;
 			}
 		}

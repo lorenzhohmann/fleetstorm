@@ -11,7 +11,9 @@ router.get('/game', (req, res) => {
 router.get('/game/:gameCode', (req, res) => {
 	const game = Manager.getGame(req.params.gameCode);
 	if (!game) {
-		res.sendStatus(404);
+		res.status(404).send({
+			error: 'Dieser Spielcode existiert nicht.'
+		});
 		return;
 	}
 	res.status(200).send(game);
@@ -38,7 +40,9 @@ router.post('/game/:gameCode/addPlayer/:playerID', (req, res) => {
 	const player = Manager.getPlayer(playerID);
 
 	if (!game || !player) {
-		res.sendStatus(400);
+		res.status(400).send({
+			error: 'Das Spiel oder der Spieler existieren nicht.'
+		});
 		return;
 	}
 

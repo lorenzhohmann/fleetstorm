@@ -8,11 +8,17 @@ body {
 	font-family: 'Germania One', cursive;
 }
 
-#main {
+#bg {
 	background-image: url('../img/background-2.jpg');
 	background-repeat: no-repeat;
 	background-size: cover;
+	background-attachment: fixed;
 	background-position: center;
+
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: -1;
 
 	width: 100vw;
 	height: 100vh;

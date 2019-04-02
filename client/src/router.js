@@ -25,6 +25,10 @@ export default new Router({
       component: Match,
       children: [
         {
+          path: '/',
+          redirect: '/'
+        },
+        {
           path: 'waiting',
           component: WaitingMatch
         },
@@ -47,6 +51,10 @@ export default new Router({
           component: EnterGame
         }
       ]
+    },
+    {
+      path: '*',
+      redirect: '/'
     }
   ]
 });

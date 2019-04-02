@@ -25,5 +25,8 @@ export default {
 	},
 	async deletePlayer(playerID) {
 		axios.delete(url, {playerID});
+	},
+	validateUsername(username) {
+		return username.match(/^[0-9A-Za-z]{3,10}$/g);
 	}
 };
