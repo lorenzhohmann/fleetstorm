@@ -3,27 +3,13 @@ import axios from 'axios';
 const url = 'http://localhost:3000/api/player';
 
 export default {
-	async createPlayer(username) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await axios.post(url, {username});
-				resolve(result.data);
-			} catch (err) {
-				reject(err);
-			}
-		});
+	createPlayer(username) {
+		return axios.post(url, {username}).then(response => response.data);
 	},
-	async playerExists(username) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await axios.get(url, {username});
-				resolve(result.data);
-			} catch (err) {
-				reject(err);
-			}
-		});
+	playerExists(username) {
+		return axios.get(url, {username}).then(response => response.data);
 	},
-	async deletePlayer(playerID) {
+	deletePlayer(playerID) {
 		axios.delete(url, {playerID});
 	},
 	validateUsername(username) {

@@ -3,50 +3,20 @@ import axios from 'axios';
 const url = 'http://localhost:3000/api/game';
 
 export default {
-	async createGame(gameCode) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await axios.post(url, {gameCode});
-				resolve(result.data);
-			} catch (err) {
-				reject(err);
-			}
-		});
+	getGames() {
+		return axios.get(url);
 	},
-	async getGame(gameCode) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await axios.get(`${url}/${gameCode}`);
-				resolve(result.data);
-			} catch (err) {
-				reject(err);
-			}
-		});
+	createGame(gameCode) {
+		return axios.post(url, {gameCode});
 	},
-	async addPlayerToGame(gameCode, playerID) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await axios.post(
-					`${url}/${gameCode}/addPlayer/${playerID}`
-				);
-				resolve(result.data);
-			} catch (err) {
-				reject(err);
-			}
-		});
+	getGame(gameCode) {
+		return axios.get(`${url}/${gameCode}`).then(response => response.data);
+	},
+	addPlayerToGame(gameCode, playerID) {
+		return axios.post(`${url}/${gameCode}/addPlayer/${playerID}`);
 	},
 	deleteGame(gameCode) {
 		axios.delete(url, {gameCode});
-	},
-	async getGame(gameCode) {
-		return new Promise(async (resolve, reject) => {
-			try {
-				const result = await axios.get(url + '/' + gameCode);
-				resolve(result.data);
-			} catch (err) {
-				reject(err);
-			}
-		});
 	},
 	playerIsInGame(player, game) {
 		return game.players.filter(p => p.id === player.id).length;

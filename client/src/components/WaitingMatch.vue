@@ -1,16 +1,17 @@
 <template>
 	<div>
-		<h2>Match-Vorbereitungen</h2>
 		<div class="match-area">
-			<div class="info-container">
+			<div class="info-container section">
 				<h3>Spielinfos</h3>
-				<p>
+				<p v-if="game.players.length">
 					<b>Aktuelle Spieleranzahl: </b>[{{ game.players.length }}/{{
 						game.maxPlayers
 					}}]
 				</p>
 				<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
-				<p><b>Admin: </b>{{ game.players[0].username }}</p>
+				<p v-if="game.players.length">
+					<b>Spielleiter: </b>{{ game.players[0].username }}
+				</p>
 				<p v-if="game.team1.length">
 					<b>Team 1: </b>{{ concatUsernames(game.team1) }}
 				</p>
@@ -18,7 +19,13 @@
 					<b>Team 2: </b>{{ concatUsernames(game.team2) }}
 				</p>
 			</div>
-			<Matchfield v-bind:game="game" />
+			<div class="section">
+				<h3>Schiffe positionieren</h3>
+				<div class="btn btn-primary" v-on:click="randomOrderShips()">
+					Schiffe zufällig anordnen
+				</div>
+				<Matchfield v-bind:game="game" />
+			</div>
 		</div>
 	</div>
 </template>
@@ -37,14 +44,17 @@ export default {
 	components: {
 		Matchfield
 	},
-	async created() {
+	created() {
+		// get gameCode from store (set in Enter or Create Game)
 		const gameCode = this.$route.params.gameCode;
-		try {
-			GameService.getGame(gameCode).then(async game => {
+
+		// search for game
+		GameService.getGame(gameCode)
+			.then(game => {
 				// add player to game
 				const player = this.$store.state.player;
 
-				// redirect to player to enter area if its empty
+				// redirect user to enter area if no player is set
 				if (!player) {
 					this.$router.push({
 						path: '/game/enter'
@@ -78,24 +88,26 @@ export default {
 				}
 
 				// add player if not in game
-				if (game.players.filter(p => p.id === player.id).length === 0) {
-					game = await GameService.addPlayerToGame(game.gameCode, player.id);
+				if (!GameService.playerIsInGame(player, game)) {
+					game = GameService.addPlayerToGame(game.gameCode, player.id);
 				}
 
 				// add socket event for user joining	(test cases)
 				this.$socket.emit('playerJoinGame', {player});
 
 				this.game = game;
+				return;
+			})
+			.catch(() => {
+				// no game found => push to home
+				this.$router.push({
+					name: 'home',
+					params: {
+						error: 'Das angeforderte Spiel existiert nicht.'
+					}
+				});
+				return;
 			});
-		} catch (err) {
-			this.$router.push({
-				name: 'home',
-				params: {
-					error: 'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #WM)'
-				}
-			});
-			return;
-		}
 	},
 	sockets: {
 		updateGameVars: function() {
@@ -115,6 +127,10 @@ export default {
 			}
 
 			return returnStr;
+		},
+		randomOrderShips() {
+			// TODO pass to child component
+			this.$emit('random-order-ships');
 		}
 	}
 };

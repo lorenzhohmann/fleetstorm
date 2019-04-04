@@ -3,8 +3,8 @@
 		<h2>Spiel erstellen</h2>
 
 		<div class="content-container">
-			<div class="row form-group">
-				<div class="col">
+			<div class="form-row">
+				<div class="form-group col-md-6 col-sm-12">
 					<input
 						type="text"
 						class="form-control"
@@ -12,7 +12,7 @@
 						v-model="username"
 					/>
 				</div>
-				<div class="col">
+				<div class="form-group col-md-6 col-sm-12">
 					<input
 						type="text"
 						class="form-control"
@@ -23,7 +23,7 @@
 			</div>
 			<button
 				class="btn btn-success btn-block btn-lg"
-				v-if="username != '' && gameCode != ''"
+				v-bind:disabled="username == '' || gameCode == ''"
 				v-on:click="createGame()"
 			>
 				Spiel erstellen
@@ -48,6 +48,8 @@ export default {
 	},
 	methods: {
 		async createGame() {
+			// TODO check if gameCode already exists
+
 			// validate username
 			if (!PlayerService.validateUsername(this.username)) {
 				this.error =

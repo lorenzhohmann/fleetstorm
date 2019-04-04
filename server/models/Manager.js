@@ -17,7 +17,7 @@ module.exports = class Manager {
 		return games.filter(g => g.gameCode == gameCode)[0];
 	}
 	static gameCodeExists(gameCode) {
-		return this.getGame();
+		return this.getGame(gameCode);
 	}
 	static usernameExists(username) {
 		return players.filter(p => p.username == username).length >= 1;

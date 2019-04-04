@@ -62,6 +62,24 @@ router.delete('/game', (req, res) => {
 	res.status(200).send();
 });
 
+router.delete('/game/:gameCode/removePlayer/:playerID', (req, res) => {
+	const gameCode = req.params.gameCode;
+	const playerID = req.params.playerID;
+
+	const game = Manager.getGame(gameCode);
+	const player = Manager.getPlayer(playerID);
+
+	if (!game || !player) {
+		res.status(400).send({
+			error: 'Das Spiel oder der Spieler existieren nicht.'
+		});
+		return;
+	}
+
+	game.removePlayer(player);
+	res.status(200).send(game);
+});
+
 router.post('/player', (req, res) => {
 	const username = req.body.username;
 	if (Manager.usernameExists(username)) {

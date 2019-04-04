@@ -25,4 +25,9 @@ module.exports = class Game {
 			this.team1.push(player);
 		}
 	}
+	removePlayer(player) {
+		this.players = this.players.filter(p => p.id !== player.id);
+		this.team1 = this.team1.filter(t1 => t1.id !== t1.id);
+		this.team2 = this.team2.filter(t2 => t2.id !== t2.id);
+	}
 };
