@@ -4,6 +4,7 @@
 			<tr v-for="y in game.fieldsize">
 				<td
 					v-on:click="clicked(x - 1, y - 1)"
+					v-if="getField(x - 1, y - 1)"
 					v-for="x in game.fieldsize"
 					v-bind:class="{
 						hasShip: getField(x - 1, y - 1).ship,
@@ -35,19 +36,20 @@
 			>
 				Schiffe zufällig anordnen
 			</div>
-			<div
+			<button
 				v-if="game.state == 0"
 				v-bind:disabled="player.ready"
 				class="btn btn-success mr-1"
 				v-on:click="readyPlayer()"
 			>
 				Ich bin bereit!
-			</div>
+			</button>
 		</div>
 	</div>
 </template>
 
 <script>
+import GameService from '@/services/GameService.js';
 import PlayerService from '@/services/PlayerService.js';
 
 export default {
@@ -55,11 +57,21 @@ export default {
 	data() {
 		return {
 			fields: [],
-			ships: []
+			ships: [],
+			player: {},
+			game: {
+				players: []
+			}
 		};
 	},
-	props: ['game', 'player'],
-	created() {
+	async created() {
+		// get gameCode from store (set in Enter or Create Game)
+		const gameCode = this.$route.params.gameCode;
+
+		const player = this.$store.state.player;
+		this.player = player;
+		this.game = await GameService.getGame(gameCode);
+
 		// create ships
 		this.ships.push({
 			length: 3,
@@ -100,15 +112,15 @@ export default {
 			}
 		}
 
-		this.positionShips(this.player);
+		this.positionShips();
 	},
 	methods: {
 		leaveGame() {
 			this.$emit('leave-game');
 		},
-		async positionShips(player) {
-			// if user has already set ships
-			if (player.ships.length) {
+		async positionShips() {
+			// if user has already position ships
+			if (this.player.ships.length) {
 				this.player.ships.forEach(ship => {
 					let field = this.getField(ship.x, ship.y);
 					field.ship = true;
@@ -118,12 +130,10 @@ export default {
 					field.orientation = ship.orientation;
 				});
 			} else {
-				this.positionShipsRandomly(player);
+				this.positionShipsRandomly();
 			}
 		},
-		async positionShipsRandomly(player) {
-			// if ships not set
-
+		async positionShipsRandomly() {
 			// reset ship and field array
 			this.fields.map(field => {
 				field.ship = false;
@@ -132,7 +142,7 @@ export default {
 				field.start = false;
 				field.orientation = '';
 			});
-			player.ships = [];
+			this.player.ships = [];
 
 			this.ships.forEach((ship, index) => {
 				let shipSet = false;
@@ -199,7 +209,7 @@ export default {
 								shipField.end = true;
 							}
 
-							player.ships.push({
+							this.player.ships.push({
 								x: shipField.x,
 								y: shipField.y,
 								end: shipField.end,
@@ -213,8 +223,8 @@ export default {
 			});
 
 			// update player instance
-			player = await PlayerService.updatePlayer(player);
-			this.$store.dispatch('setPlayer', player);
+			this.player = await PlayerService.updatePlayer(this.player);
+			this.$store.dispatch('setPlayer', this.player);
 		},
 		getField(x, y) {
 			return this.fields.filter(f => f.x === x && f.y === y)[0];
@@ -224,14 +234,29 @@ export default {
 		},
 		clicked(x, y) {},
 		readyPlayer() {
-			this.player.ready = true;
-			alert('player ready');
+			// set ready state
+			const player = this.game.players.filter(
+				p => p.id === this.player.id
+			)[0];
+			player.ready = true;
 
 			// start game when all players ready
 			const readyPlayers = this.game.players.filter(p => p.ready).length;
-			if (readyPlayers == this.game.maxPlayers) {
+			if (readyPlayers >= this.game.minPlayers) {
+				// TODO redirect to running matchfield
 				alert('START GAME');
 			}
+
+			// set global player
+			this.player = player;
+
+			// TODO check if needed
+			this.$store.dispatch('setPlayer', this.player);
+
+			// update game
+
+			// update socket view
+			this.$socket.emit('playerLeaveGame');
 		}
 	}
 };

@@ -6,6 +6,7 @@ module.exports = class Game {
 	constructor(gameCode) {
 		this.id = uuid.v4();
 		this.maxPlayers = 4;
+		this.minPlayers = 2;
 		this.state = 0;
 		this.players = [];
 		this.gameCode = gameCode;

@@ -8,6 +8,7 @@
 						game.maxPlayers
 					}}]
 				</p>
+				<p><b>minimale Spieleranzahl:</b> {{ game.minPlayers }}</p>
 				<p>
 					<b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}
 				</p>
@@ -20,11 +21,7 @@
 			</div>
 			<div class="section">
 				<h3>Schiffe positionieren</h3>
-				<Matchfield
-					v-bind:game="game"
-					v-bind:player="player"
-					v-on:leave-game="leaveGame()"
-				/>
+				<Matchfield v-on:leave-game="leaveGame()" />
 			</div>
 		</div>
 	</div>
@@ -39,8 +36,10 @@ export default {
 	name: 'WaitingMatch',
 	data() {
 		return {
-			game: null,
-			player: null
+			game: {
+				players: []
+			},
+			player: {}
 		};
 	},
 	components: {
@@ -50,12 +49,12 @@ export default {
 		// get gameCode from store (set in Enter or Create Game)
 		const gameCode = this.$route.params.gameCode;
 
+		const player = this.$store.state.player;
+		this.player = player;
+
 		// search for game
 		GameService.getGame(gameCode)
 			.then(game => {
-				// add player to game
-				const player = this.$store.state.player;
-
 				// redirect user to enter area if no player is set
 				if (!player) {
 					this.$router.push({
@@ -102,7 +101,6 @@ export default {
 				this.$socket.emit('playerJoinGame', { player });
 
 				this.game = game;
-				this.player = player;
 				return;
 			})
 			.catch(() => {
@@ -129,9 +127,11 @@ export default {
 			var returnStr = '';
 
 			for (let i = 0; i < players.length; i++) {
-				returnStr +=
-					players[i].username +
-					(i + 1 === players.length ? '' : ', ');
+				returnStr += players[i].username;
+
+				returnStr += players[i].ready ? ' (bereit)' : ' (nicht bereit)';
+
+				returnStr += i + 1 === players.length ? '' : ', ';
 			}
 
 			return returnStr;
@@ -143,7 +143,6 @@ export default {
 			GameService.removePlayer(this.game.gameCode, this.player.id);
 
 			// delete player
-			console.log(this.player);
 			PlayerService.deletePlayer(this.player.username);
 			this.$store.dispatch('setPlayer', null);
 
