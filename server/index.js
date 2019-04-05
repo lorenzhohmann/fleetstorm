@@ -14,6 +14,9 @@ io.on('connection', function(socket) {
 	socket.on('playerJoinGame', data => {
 		io.emit('updateGameVars');
 	});
+	socket.on('updateGameVars', data => {
+		io.emit('updateGameVars');
+	});
 
 	socket.on('playerLeaveGame', data => {
 		io.emit('updateGameVars');

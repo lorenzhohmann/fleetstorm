@@ -3,20 +3,16 @@
 		<div class="match-area">
 			<div class="info-container section">
 				<h3>Spielinfos</h3>
-				<p v-if="game.players.length">
-					<b>Aktuelle Spieleranzahl: </b>[{{ game.players.length }}/{{
+				<p v-if="game.playerIDs.length">
+					<b>Aktuelle Spieleranzahl: </b>[{{ game.playerIDs.length }}/{{
 						game.maxPlayers
 					}}]
 				</p>
 				<p><b>minimale Spieleranzahl:</b> {{ game.minPlayers }}</p>
-				<p>
-					<b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}
-				</p>
-				<p v-if="game.players.length">
-					<b>Spielleiter: </b>{{ game.players[0].username }}
-				</p>
-				<p v-if="game.players.length">
-					<b>Spieler: </b>{{ concatUsernames(game.players) }}
+				<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
+				<p v-if="game.playerIDs.length"><b>Spielleiter: </b>{{ adminName }}</p>
+				<p v-if="game.playerIDs.length">
+					<b>Spieler: </b>{{ getPlayernames(game.playerIDs) }}
 				</p>
 			</div>
 			<div class="section">
@@ -36,8 +32,9 @@ export default {
 	name: 'WaitingMatch',
 	data() {
 		return {
+			adminName: '',
 			game: {
-				players: []
+				playerIDs: []
 			},
 			player: {}
 		};
@@ -54,7 +51,7 @@ export default {
 
 		// search for game
 		GameService.getGame(gameCode)
-			.then(game => {
+			.then(async game => {
 				// redirect user to enter area if no player is set
 				if (!player) {
 					this.$router.push({
@@ -66,13 +63,12 @@ export default {
 				// if game is full
 				if (
 					!GameService.playerIsInGame(player, game) &&
-					game.players.length >= game.maxPlayers
+					game.playerIDs.length >= game.maxPlayers
 				) {
 					this.$router.push({
 						name: 'home',
 						params: {
-							error:
-								'Die maximale Spieleranzahl ist bereits erreicht.'
+							error: 'Die maximale Spieleranzahl ist bereits erreicht.'
 						}
 					});
 					return;
@@ -91,19 +87,19 @@ export default {
 
 				// add player if not in game
 				if (!GameService.playerIsInGame(player, game)) {
-					game = GameService.addPlayerToGame(
-						game.gameCode,
-						player.id
-					);
+					game = await GameService.addPlayerToGame(game.gameCode, player.id);
 				}
 
 				// add socket event for user joining	(test cases)
-				this.$socket.emit('playerJoinGame', { player });
+				this.$socket.emit('playerJoinGame', {player});
+
+				// TODO FIND ERROR get admin name
+				// this.adminName = await PlayerService.getPlayer(game.playerIDs[0]);
 
 				this.game = game;
 				return;
 			})
-			.catch(() => {
+			.catch(err => {
 				// no game found => push to home
 				this.$router.push({
 					name: 'home',
@@ -123,16 +119,24 @@ export default {
 		}
 	},
 	methods: {
-		concatUsernames(players) {
-			var returnStr = '';
+		async getPlayernames(playerIDs) {
+			let returnStr = '';
 
-			for (let i = 0; i < players.length; i++) {
-				returnStr += players[i].username;
+			// TODO (not working)
 
-				returnStr += players[i].ready ? ' (bereit)' : ' (nicht bereit)';
+			PlayerService.getPlayers(players => {
+				console.log(players);
+			});
 
-				returnStr += i + 1 === players.length ? '' : ', ';
-			}
+			// for (let i = 0; i < playerIDs.length; i++) {
+			// 	let player = players.filter(p => p.id === playerIDs[i]);
+
+			// 	returnStr += player.username;
+
+			// 	returnStr += player.ready ? ' (bereit)' : ' (nicht bereit)';
+
+			// 	returnStr += i + 1 === playerIDs.length ? '' : ', ';
+			// }
 
 			return returnStr;
 		},
@@ -153,7 +157,7 @@ export default {
 			this.$router.push({
 				name: 'home',
 				params: {
-					error: 'Sie haben das Spiel verlassen.'
+					error: 'Du hast das Spiel verlassen.'
 				}
 			});
 		}

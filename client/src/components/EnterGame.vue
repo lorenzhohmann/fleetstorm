@@ -1,7 +1,5 @@
 <template>
 	<div>
-		<h2>Spiel beitreten</h2>
-
 		<div class="content-container">
 			<h3>Über Spiel-Code beitreten</h3>
 			<div class="form-row">
@@ -23,47 +21,53 @@
 				</div>
 			</div>
 			<button
-				class="btn btn-success btn-block btn-lg"
+				class="btn btn-success"
 				v-bind:disabled="username == '' || gameCode == ''"
 				v-on:click="enterGame(gameCode)"
 			>
-				Spiel beitreten
+				<i class="fas fa-play mr-3"></i>Spiel beitreten
 			</button>
 			<div class="alert alert-danger mt-3" v-if="error">{{ error }}</div>
 
 			<div v-if="games.length">
 				<h3 class="mt-10">Aus vorhandenen Spielen auswählen</h3>
 				<div class="game-list row">
-					<div class="col-sm-6 col-md-4" v-for="game in games">
+					<div
+						class="col-sm-6 col-md-4"
+						v-for="game in games"
+						v-bind:key="game.id"
+					>
 						<div class="card game-entry my-2">
 							<div class="card-header">{{ game.gameCode }}</div>
 							<div class="card-body">
 								<h6
 									class="card-subtitle mb-2 text-muted"
-									v-if="game.players.length"
+									v-if="game.playerIDs.length"
 								>
-									<b>Admin:</b> {{ game.players[0].username }}
+									<b>Admin:</b>
+									{{ getAdmin(game) }}
 								</h6>
 								<h6
 									class="card-subtitle mb-2 text-muted"
-									v-if="!game.players.length"
+									v-if="!game.playerIDs.length"
 								>
 									<b>Admin:</b> Computer
 								</h6>
 								<p class="card-text">
-									<b>Aktuelle Spieleranzahl:</b> [{{
-										game.players.length
-									}}/{{ game.maxPlayers }}]<br />
-									<b>Spielfeld:</b> {{ game.fieldsize }}x{{
-										game.fieldsize
-									}}
+									<b>Aktuelle Spieleranzahl:</b> [{{ game.playerIDs.length }}/{{
+										game.maxPlayers
+									}}]<br />
+									<b>Spielfeld:</b> {{ game.fieldsize }}x{{ game.fieldsize
+									}}<br />
+									<b>Status: </b> {{ getStatus(game) }}
 								</p>
 								<button
+									title="Spiel beitreten"
 									v-bind:disabled="username == ''"
 									v-on:click="enterGame(game.gameCode)"
 									class="btn btn-success"
 								>
-									Spiel beitreten
+									<i class="fas fa-play"></i>
 								</button>
 							</div>
 						</div>
@@ -88,12 +92,22 @@ export default {
 			games: []
 		};
 	},
-	mounted() {
+	created() {
 		this.getGames();
 	},
 	methods: {
-		getGames() {
-			GameService.getGames().then(games => (this.games = games.data));
+		async getGames() {
+			this.games = await GameService.getGames();
+		},
+		getAdmin(game) {
+			return 'Mensch';
+			// PlayerService.getPlayer(game.playerIDs[0]).then(admin => {
+			// 	console.log(admin);
+			// 	return admin.username;
+			// });
+		},
+		getStatus(game) {
+			return 'unbekannt';
 		},
 		async enterGame(gameCode) {
 			// validate username
@@ -114,7 +128,7 @@ export default {
 			}
 
 			// if game is full
-			if (game.players.length >= game.maxPlayers) {
+			if (game.playerIDs.length >= game.maxPlayers) {
 				this.error = 'Die maximale Spieleranzahl ist bereits erreicht.';
 				return;
 			}

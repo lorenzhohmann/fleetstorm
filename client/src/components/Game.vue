@@ -1,16 +1,15 @@
 <template>
 	<div>
 		<router-view />
-		<router-link class="btn btn-secondary" to="/">Zurück</router-link>
+		<router-link class="btn btn-secondary" to="/"
+			><i class="fas fa-arrow-left pr-2"></i> Zurück</router-link
+		>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'home',
-	methods: {
-		async createPlayer() {}
-	}
+	name: 'home'
 };
 </script>
 <style>

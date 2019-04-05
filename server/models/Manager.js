@@ -25,6 +25,9 @@ module.exports = class Manager {
 	static usernameExists(username) {
 		return players.filter(p => p.username == username).length >= 1;
 	}
+	static getPlayers() {
+		return players;
+	}
 	static addPlayer(username) {
 		const player = new Player(username);
 		players.push(player);

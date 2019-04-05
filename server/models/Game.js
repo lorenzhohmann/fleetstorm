@@ -8,14 +8,14 @@ module.exports = class Game {
 		this.maxPlayers = 4;
 		this.minPlayers = 2;
 		this.state = 0;
-		this.players = [];
+		this.playerIDs = [];
 		this.gameCode = gameCode;
 		this.fieldsize = 10;
 	}
-	addPlayer(player) {
-		if (this.players.length < this.maxPlayers) this.players.push(player);
+	addPlayer(playerID) {
+		if (this.playerIDs.length < this.maxPlayers) this.playerIDs.push(playerID);
 	}
-	removePlayer(player) {
-		this.players = this.players.filter(p => p.id !== player.id);
+	removePlayer(playerID) {
+		this.playerIDs = this.playerIDs.filter(id => id !== playerID);
 	}
 };

@@ -22,27 +22,27 @@
 		</table>
 
 		<div class="matchfield-button-container mt-3" v-if="game.state == 0">
-			<div
+			<button
 				v-if="game.state == 0"
 				class="btn btn-danger mr-5"
 				v-on:click="leaveGame()"
 			>
-				Spiel verlassen
-			</div>
-			<div
-				v-if="game.state == 0"
-				class="btn btn-primary mr-1"
-				v-on:click="positionShipsRandomly(player)"
-			>
-				Schiffe zufällig anordnen
-			</div>
+				<i class="fas fa-times mr-3"></i>Spiel verlassen
+			</button>
 			<button
 				v-if="game.state == 0"
-				v-bind:disabled="player.ready"
-				class="btn btn-success mr-1"
+				v-bind:disabled="player.ready && false"
+				class="btn btn-success mr-1 float-right animated infinite pulse slower"
 				v-on:click="readyPlayer()"
 			>
-				Ich bin bereit!
+				<i class="fas fa-check mr-3"></i>Ich bin bereit!
+			</button>
+			<button
+				v-if="game.state == 0"
+				class="btn btn-primary mr-1 float-right"
+				v-on:click="positionShipsRandomly(player)"
+			>
+				<i class="fas fa-random mr-3"></i>Schiffe zufällig anordnen
 			</button>
 		</div>
 	</div>
@@ -60,7 +60,7 @@ export default {
 			ships: [],
 			player: {},
 			game: {
-				players: []
+				playerIDs: []
 			}
 		};
 	},
@@ -155,8 +155,7 @@ export default {
 					const y = parseInt(Math.random() * this.game.fieldsize);
 					let field = this.getField(x, y);
 
-					ship.orientation =
-						parseInt(Math.random() * 2) == 1 ? 'x' : 'y';
+					ship.orientation = parseInt(Math.random() * 2) == 1 ? 'x' : 'y';
 
 					// check if ship is set on positions
 					for (let i = 0; i < ship.length; i++) {
@@ -233,42 +232,37 @@ export default {
 			return this.getField(x, y).color;
 		},
 		clicked(x, y) {},
-		readyPlayer() {
+		async readyPlayer() {
 			// set ready state
-			const player = this.game.players.filter(
-				p => p.id === this.player.id
-			)[0];
+			const player = this.game.players.filter(p => p.id === this.player.id)[0];
 			player.ready = true;
 
-			// start game when all players ready
-			const readyPlayers = this.game.players.filter(p => p.ready).length;
-			if (readyPlayers >= this.game.minPlayers) {
-				// TODO redirect to running matchfield
-				alert('START GAME');
-			}
+			// TODO start game when all players ready
 
 			// set global player
 			this.player = player;
+
+			this.game = await GameService.updateGame(this.game);
 
 			// TODO check if needed
 			this.$store.dispatch('setPlayer', this.player);
 
 			// update game
-
-			// update socket view
-			this.$socket.emit('playerLeaveGame');
+			this.$socket.emit('updateGameVars');
 		}
 	}
 };
 </script>
 <style>
 .matchfield {
+	border-radius: 10px;
 	padding: 1rem;
 	width: 600px;
 	height: 600px;
 	table-layout: fixed;
 	margin: 0 auto;
 
+	background-color: rgba(8, 98, 138, 0.8);
 	background-image: url(../../public/img/matchfield-background.jpg);
 	background-repeat: no-repeat;
 	background-position: center;
@@ -276,7 +270,7 @@ export default {
 }
 .matchfield td,
 .matchfield th {
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.1);
 	text-align: center;
 }
 .matchfield th {
@@ -306,23 +300,29 @@ export default {
 .matchfield td.y {
 	border: none;
 }
-.matchfield td.x {
-	border: none;
+.matchfield td.hasShip {
+	background-image: url(../../public/img/ship.png);
+	background-color: transparent;
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+.matchfield td.y {
+	transform: rotate(90deg);
 }
 .matchfield td.start.x {
-	border-top-left-radius: 40%;
-	border-bottom-left-radius: 40%;
+	background-position: left center;
 }
 .matchfield td.end.x {
-	border-top-right-radius: 40%;
-	border-bottom-right-radius: 40%;
+	background-position: left center;
+	transform: rotate(180deg);
 }
 .matchfield td.start.y {
-	border-top-left-radius: 40%;
-	border-top-right-radius: 40%;
+	background-position: left center;
+	transform: rotate(90deg);
 }
 .matchfield td.end.y {
-	border-bottom-left-radius: 40%;
-	border-bottom-right-radius: 40%;
+	background-position: left center;
+	transform: rotate(270deg);
 }
 </style>

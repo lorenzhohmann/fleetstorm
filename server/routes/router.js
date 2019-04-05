@@ -46,7 +46,7 @@ router.post('/game/:gameCode/addPlayer/:playerID', (req, res) => {
 		return;
 	}
 
-	game.addPlayer(player);
+	game.addPlayer(playerID);
 	res.status(200).send(game);
 });
 
@@ -64,7 +64,23 @@ router.post('/game/:gameCode/removePlayer/:playerID', (req, res) => {
 		return;
 	}
 
-	game.removePlayer(player);
+	game.removePlayer(playerID);
+	res.status(200).send(game);
+});
+
+router.put('/game', (req, res) => {
+	const gameCode = req.body.game.gameCode;
+
+	let game = Manager.getGame(gameCode);
+
+	if (!game) {
+		res.status(400).send({
+			error: 'Dieses Spiel existiert nicht'
+		});
+		return;
+	}
+
+	game = req.body.game;
 	res.status(200).send(game);
 });
 
@@ -83,7 +99,6 @@ router.delete('/game', (req, res) => {
 router.delete('/game/:gameCode/removePlayer/:playerID', (req, res) => {
 	const gameCode = req.params.gameCode;
 	const playerID = req.params.playerID;
-	console.log(gameCode, playerID);
 
 	const game = Manager.getGame(gameCode);
 	const player = Manager.getPlayer(playerID);
@@ -95,8 +110,8 @@ router.delete('/game/:gameCode/removePlayer/:playerID', (req, res) => {
 		return;
 	}
 
-	game.removePlayer(player);
-	if (game.players.length == 0) {
+	game.removePlayer(playerID);
+	if (game.playerIDs.length == 0) {
 		Manager.deleteGame(game);
 		res.status(200).send();
 		return;
@@ -147,6 +162,11 @@ router.get('/player', (req, res) => {
 	}
 
 	res.status(200).send(player);
+});
+
+router.get('/player', (req, res) => {
+	const players = Manager.getPlayers();
+	res.status(200).send(players);
 });
 
 router.delete('/player', (req, res) => {

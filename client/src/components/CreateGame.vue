@@ -1,7 +1,5 @@
 <template>
 	<div>
-		<h2>Spiel erstellen</h2>
-
 		<div class="content-container">
 			<div class="form-row">
 				<div class="form-group col-md-6 col-sm-12">
@@ -22,11 +20,11 @@
 				</div>
 			</div>
 			<button
-				class="btn btn-success btn-block btn-lg"
+				class="btn btn-success"
 				v-bind:disabled="username == '' || gameCode == ''"
 				v-on:click="createGame()"
 			>
-				Spiel erstellen
+				<i class="fas fa-plus mr-3"></i>Spiel erstellen
 			</button>
 			<div class="alert alert-danger mt-3" v-if="error">{{ error }}</div>
 		</div>
