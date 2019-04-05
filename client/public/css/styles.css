@@ -63,6 +63,9 @@ body {
 	background-color: #08628a;
 	border-color: #08628a;
 }
+.btn {
+	cursor: pointer;
+}
 
 h2 {
 	font-size: 3rem;

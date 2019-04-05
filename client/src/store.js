@@ -19,10 +19,10 @@ export default new Vuex.Store({
 		}
 	},
 	actions: {
-		setGame({commit}, game) {
+		setGame({ commit }, game) {
 			commit('setGame', game);
 		},
-		setPlayer({commit}, player) {
+		setPlayer({ commit }, player) {
 			commit('setPlayer', player);
 		}
 	}

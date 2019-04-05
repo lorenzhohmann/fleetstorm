@@ -51,10 +51,12 @@
 									<b>Admin:</b> Computer
 								</h6>
 								<p class="card-text">
-									<b>Aktuelle Spieleranzahl:</b> [{{ game.players.length }}/{{
-										game.maxPlayers
-									}}]<br />
-									<b>Spielfeld:</b> {{ game.fieldsize }}x{{ game.fieldsize }}
+									<b>Aktuelle Spieleranzahl:</b> [{{
+										game.players.length
+									}}/{{ game.maxPlayers }}]<br />
+									<b>Spielfeld:</b> {{ game.fieldsize }}x{{
+										game.fieldsize
+									}}
 								</p>
 								<button
 									v-bind:disabled="username == ''"
@@ -93,7 +95,6 @@ export default {
 		getGames() {
 			GameService.getGames().then(games => (this.games = games.data));
 		},
-		enterGameByCard() {},
 		async enterGame(gameCode) {
 			// validate username
 			if (!PlayerService.validateUsername(this.username)) {

@@ -15,6 +15,10 @@ io.on('connection', function(socket) {
 		io.emit('updateGameVars');
 	});
 
+	socket.on('playerLeaveGame', data => {
+		io.emit('updateGameVars');
+	});
+
 	socket.on('disconnect', data => {
 		io.emit('updateGameVars');
 	});

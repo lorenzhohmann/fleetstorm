@@ -8,23 +8,23 @@
 						game.maxPlayers
 					}}]
 				</p>
-				<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
+				<p>
+					<b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}
+				</p>
 				<p v-if="game.players.length">
 					<b>Spielleiter: </b>{{ game.players[0].username }}
 				</p>
-				<p v-if="game.team1.length">
-					<b>Team 1: </b>{{ concatUsernames(game.team1) }}
-				</p>
-				<p v-if="game.team2.length">
-					<b>Team 2: </b>{{ concatUsernames(game.team2) }}
+				<p v-if="game.players.length">
+					<b>Spieler: </b>{{ concatUsernames(game.players) }}
 				</p>
 			</div>
 			<div class="section">
 				<h3>Schiffe positionieren</h3>
-				<div class="btn btn-primary" v-on:click="randomOrderShips()">
-					Schiffe zufällig anordnen
-				</div>
-				<Matchfield v-bind:game="game" />
+				<Matchfield
+					v-bind:game="game"
+					v-bind:player="player"
+					v-on:leave-game="leaveGame()"
+				/>
 			</div>
 		</div>
 	</div>
@@ -32,13 +32,15 @@
 
 <script>
 import GameService from '@/services/GameService.js';
+import PlayerService from '@/services/PlayerService.js';
 import Matchfield from '@/components/Matchfield.vue';
 
 export default {
 	name: 'WaitingMatch',
 	data() {
 		return {
-			game: []
+			game: null,
+			player: null
 		};
 	},
 	components: {
@@ -70,7 +72,8 @@ export default {
 					this.$router.push({
 						name: 'home',
 						params: {
-							error: 'Die maximale Spieleranzahl ist bereits erreicht.'
+							error:
+								'Die maximale Spieleranzahl ist bereits erreicht.'
 						}
 					});
 					return;
@@ -89,13 +92,17 @@ export default {
 
 				// add player if not in game
 				if (!GameService.playerIsInGame(player, game)) {
-					game = GameService.addPlayerToGame(game.gameCode, player.id);
+					game = GameService.addPlayerToGame(
+						game.gameCode,
+						player.id
+					);
 				}
 
 				// add socket event for user joining	(test cases)
-				this.$socket.emit('playerJoinGame', {player});
+				this.$socket.emit('playerJoinGame', { player });
 
 				this.game = game;
+				this.player = player;
 				return;
 			})
 			.catch(() => {
@@ -123,14 +130,33 @@ export default {
 
 			for (let i = 0; i < players.length; i++) {
 				returnStr +=
-					players[i].username + (i + 1 === players.length ? '' : ', ');
+					players[i].username +
+					(i + 1 === players.length ? '' : ', ');
 			}
 
 			return returnStr;
 		},
-		randomOrderShips() {
-			// TODO pass to child component
-			this.$emit('random-order-ships');
+		leaveGame() {
+			// TODO check function
+
+			// remove player from game
+			GameService.removePlayer(this.game.gameCode, this.player.id);
+
+			// delete player
+			console.log(this.player);
+			PlayerService.deletePlayer(this.player.username);
+			this.$store.dispatch('setPlayer', null);
+
+			// update socket view
+			this.$socket.emit('playerLeaveGame');
+
+			// redirect to home
+			this.$router.push({
+				name: 'home',
+				params: {
+					error: 'Sie haben das Spiel verlassen.'
+				}
+			});
 		}
 	}
 };
