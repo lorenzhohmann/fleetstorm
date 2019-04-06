@@ -80,7 +80,7 @@ router.put('/game', (req, res) => {
 		return;
 	}
 
-	game = req.body.game;
+	Manager.updateGame(req.body.game);
 	res.status(200).send(game);
 });
 
@@ -145,12 +145,12 @@ router.put('/player', (req, res) => {
 		return;
 	}
 
-	player = req.body.player;
+	Manager.updatePlayer(req.body.player);
 	res.status(200).send(player);
 });
 
-router.get('/player', (req, res) => {
-	const playerID = req.body.playerID;
+router.get('/player/:playerID', (req, res) => {
+	const playerID = req.params.playerID;
 
 	const player = Manager.getPlayer(playerID);
 

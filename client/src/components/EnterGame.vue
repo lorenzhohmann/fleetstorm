@@ -42,10 +42,12 @@
 							<div class="card-body">
 								<h6
 									class="card-subtitle mb-2 text-muted"
-									v-if="game.playerIDs.length"
+									v-if="game.playerIDs.length && false"
 								>
 									<b>Admin:</b>
-									{{ getAdmin(game) }}
+									{{
+										admins.filter(a => a.gameCode === game.gameCode)[0].admin
+									}}
 								</h6>
 								<h6
 									class="card-subtitle mb-2 text-muted"
@@ -63,9 +65,13 @@
 								</p>
 								<button
 									title="Spiel beitreten"
-									v-bind:disabled="username == ''"
+									v-bind:disabled="username == '' || game.state !== 0"
 									v-on:click="enterGame(game.gameCode)"
-									class="btn btn-success"
+									v-bind:class="{
+										'btn-success': game.state === 0,
+										'btn-secondary': game.state !== 0
+									}"
+									class="btn"
 								>
 									<i class="fas fa-play"></i>
 								</button>
@@ -99,15 +105,18 @@ export default {
 		async getGames() {
 			this.games = await GameService.getGames();
 		},
-		getAdmin(game) {
-			return 'Mensch';
-			// PlayerService.getPlayer(game.playerIDs[0]).then(admin => {
-			// 	console.log(admin);
-			// 	return admin.username;
-			// });
-		},
 		getStatus(game) {
-			return 'unbekannt';
+			switch (game.state) {
+				case 0:
+					return 'Warten';
+					break;
+				case 1:
+					return 'Läuft';
+					break;
+				case 2:
+					return 'Endet';
+					break;
+			}
 		},
 		async enterGame(gameCode) {
 			// validate username

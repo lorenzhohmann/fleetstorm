@@ -8,10 +8,6 @@
 					v-for="x in game.fieldsize"
 					v-bind:class="{
 						hasShip: getField(x - 1, y - 1).ship,
-						'color-1': getField(x - 1, y - 1).color == 'color-1',
-						'color-2': getField(x - 1, y - 1).color == 'color-2',
-						'color-3': getField(x - 1, y - 1).color == 'color-3',
-						'color-4': getField(x - 1, y - 1).color == 'color-4',
 						end: getField(x - 1, y - 1).end,
 						start: getField(x - 1, y - 1).start,
 						x: getField(x - 1, y - 1).orientation == 'x',
@@ -32,18 +28,23 @@
 			<button
 				v-if="game.state == 0"
 				v-bind:disabled="player.ready && false"
-				class="btn btn-success mr-1 float-right animated infinite pulse slower"
+				v-bind:class="{pulse: !player.ready}"
+				class="btn btn-success mr-1 float-right animated infinite slower"
 				v-on:click="readyPlayer()"
 			>
 				<i class="fas fa-check mr-3"></i>Ich bin bereit!
 			</button>
 			<button
 				v-if="game.state == 0"
+				v-bind:disabled="player.ready"
 				class="btn btn-primary mr-1 float-right"
 				v-on:click="positionShipsRandomly(player)"
 			>
 				<i class="fas fa-random mr-3"></i>Schiffe zufällig anordnen
 			</button>
+			<p class="small float-right mt-2" v-if="player.ready">
+				Das Spiel startet automatisch, sobald alle Spieler bereit sind.
+			</p>
 		</div>
 	</div>
 </template>
@@ -75,29 +76,36 @@ export default {
 		// create ships
 		this.ships.push({
 			length: 3,
+			special: '',
 			orientation: 'x',
-			color: 'color-1',
 			end: false,
 			start: false
 		});
 		this.ships.push({
 			length: 4,
+			special: '',
 			orientation: 'y',
-			color: 'color-2',
 			end: false,
 			start: false
 		});
 		this.ships.push({
 			length: 5,
+			special: '',
 			orientation: 'y',
-			color: 'color-3',
 			end: false,
 			start: false
 		});
 		this.ships.push({
 			length: 2,
+			special: '',
 			orientation: 'x',
-			color: 'color-4',
+			end: false,
+			start: false
+		});
+		this.ships.push({
+			length: 3,
+			special: 'side',
+			orientation: 'x',
 			end: false,
 			start: false
 		});
@@ -114,20 +122,30 @@ export default {
 
 		this.positionShips();
 	},
+	sockets: {
+		updateGameVars: function() {
+			// update game
+			const gameCode = this.$route.params.gameCode;
+			GameService.getGame(gameCode).then(async game => {
+				this.game = game;
+			});
+		}
+	},
 	methods: {
 		leaveGame() {
 			this.$emit('leave-game');
 		},
-		async positionShips() {
+		positionShips() {
+			// TODO check why ships not saved (sometimes - not every time)
 			// if user has already position ships
 			if (this.player.ships.length) {
 				this.player.ships.forEach(ship => {
 					let field = this.getField(ship.x, ship.y);
 					field.ship = true;
-					field.color = ship.color;
 					field.end = ship.end;
 					field.start = ship.start;
 					field.orientation = ship.orientation;
+					field.special = ship.special;
 				});
 			} else {
 				this.positionShipsRandomly();
@@ -137,10 +155,10 @@ export default {
 			// reset ship and field array
 			this.fields.map(field => {
 				field.ship = false;
-				field.color = '';
 				field.end = false;
 				field.start = false;
 				field.orientation = '';
+				field.special = '';
 			});
 			this.player.ships = [];
 
@@ -183,6 +201,17 @@ export default {
 						}
 					}
 
+					// special ships
+					switch (ship.special) {
+						case 'side': // extra part on one side of the ship
+							const specialField = this.getField(x + 1, y + 1);
+							if (specialField == undefined || specialField.ship) {
+								noShip = false;
+								break;
+							}
+							break;
+					}
+
 					// set ship
 					if (noShip) {
 						shipSet = true;
@@ -192,12 +221,10 @@ export default {
 							if (ship.orientation == 'x') {
 								shipField = this.getField(x + i, y);
 								shipField.ship = true;
-								shipField.color = ship.color;
 								shipField.orientation = 'x';
 							} else {
 								shipField = this.getField(x, y + i);
 								shipField.ship = true;
-								shipField.color = ship.color;
 								shipField.orientation = 'y';
 							}
 
@@ -214,8 +241,27 @@ export default {
 								end: shipField.end,
 								start: shipField.start,
 								orientation: shipField.orientation,
-								color: shipField.color
+								special: shipField.special
 							});
+						}
+
+						// set special ships position
+						switch (ship.special) {
+							case 'side': // extra part on one side of the ship
+								const specialField = this.getField(x + 1, y + 1);
+								specialField.ship = true;
+								specialField.orientation = ship.orientation == 'x' ? 'y' : 'x';
+								specialField.end = true;
+
+								this.player.ships.push({
+									x: specialField.x,
+									y: specialField.y,
+									end: specialField.end,
+									start: specialField.start,
+									orientation: specialField.orientation,
+									special: specialField.special
+								});
+								break;
 						}
 					}
 				}
@@ -228,23 +274,18 @@ export default {
 		getField(x, y) {
 			return this.fields.filter(f => f.x === x && f.y === y)[0];
 		},
-		getColor(x, y) {
-			return this.getField(x, y).color;
-		},
 		clicked(x, y) {},
 		async readyPlayer() {
 			// set ready state
-			const player = this.game.players.filter(p => p.id === this.player.id)[0];
-			player.ready = true;
+			this.player.ready = true;
 
-			// TODO start game when all players ready
+			// start game when all players ready
+			const playerIDs = this.game.playerIDs;
+			if (playerIDs.length >= this.game.minPlayers) {
+				this.$socket.emit('startGame', {gameCode: this.game.gameCode});
+			}
 
-			// set global player
-			this.player = player;
-
-			this.game = await GameService.updateGame(this.game);
-
-			// TODO check if needed
+			this.player = await PlayerService.updatePlayer(this.player);
 			this.$store.dispatch('setPlayer', this.player);
 
 			// update game
@@ -283,18 +324,6 @@ export default {
 }
 .matchfield td {
 	opacity: 0.9;
-}
-.matchfield td.color-1 {
-	background: #b7b2b2;
-}
-.matchfield td.color-2 {
-	background: #6e6e6e;
-}
-.matchfield td.color-3 {
-	background: #464646;
-}
-.matchfield td.color-4 {
-	background: #999999;
 }
 .matchfield td.x,
 .matchfield td.y {

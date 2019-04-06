@@ -3,6 +3,7 @@
 		<div class="match-area">
 			<div class="info-container section">
 				<h3>Spielinfos</h3>
+				<p><b>Dein Name:</b> {{ player.username }}</p>
 				<p v-if="game.playerIDs.length">
 					<b>Aktuelle Spieleranzahl: </b>[{{ game.playerIDs.length }}/{{
 						game.maxPlayers
@@ -11,12 +12,10 @@
 				<p><b>minimale Spieleranzahl:</b> {{ game.minPlayers }}</p>
 				<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
 				<p v-if="game.playerIDs.length"><b>Spielleiter: </b>{{ adminName }}</p>
-				<p v-if="game.playerIDs.length">
-					<b>Spieler: </b>{{ getPlayernames(game.playerIDs) }}
-				</p>
+				<p v-if="game.playerIDs.length"><b>Spieler: </b>{{ ingamePlayers }}</p>
 			</div>
 			<div class="section">
-				<h3>Schiffe positionieren</h3>
+				<h3>Strategie vorbereiten</h3>
 				<Matchfield v-on:leave-game="leaveGame()" />
 			</div>
 		</div>
@@ -36,7 +35,8 @@ export default {
 			game: {
 				playerIDs: []
 			},
-			player: {}
+			player: {},
+			ingamePlayers: []
 		};
 	},
 	components: {
@@ -90,13 +90,18 @@ export default {
 					game = await GameService.addPlayerToGame(game.gameCode, player.id);
 				}
 
-				// add socket event for user joining	(test cases)
-				this.$socket.emit('playerJoinGame', {player});
+				// add socket event for user joining
+				this.$socket.emit('playerJoinGame');
+
+				// set game global for this component
+				this.game = game;
+
+				// get players
+				this.getPlayers();
 
 				// TODO FIND ERROR get admin name
-				// this.adminName = await PlayerService.getPlayer(game.playerIDs[0]);
+				this.getAdminName();
 
-				this.game = game;
 				return;
 			})
 			.catch(err => {
@@ -112,33 +117,51 @@ export default {
 	},
 	sockets: {
 		updateGameVars: function() {
+			// update game
 			const gameCode = this.$route.params.gameCode;
 			GameService.getGame(gameCode).then(async game => {
 				this.game = game;
 			});
+
+			// update player list
+			this.getPlayers();
+
+			// update admin name
+			this.getAdminName();
+		},
+		startGame: async function(data) {
+			// update game status
+			const gameCode = data.gameCode;
+			const game = await GameService.getGame(gameCode);
+			game.state = 1;
+
+			// redirect to playing area
+			GameService.updateGame(game).then(() => {
+				this.$router.push(`/match/${gameCode}/playing`);
+			});
 		}
 	},
 	methods: {
-		async getPlayernames(playerIDs) {
-			let returnStr = '';
+		async getPlayers() {
+			let playerString = '';
+			const players = await PlayerService.getPlayers();
+			const playerIDs = this.game.playerIDs;
 
-			// TODO (not working)
+			for (let i = 0; i < playerIDs.length; i++) {
+				let player = players.filter(p => p.id === playerIDs[i])[0];
 
-			PlayerService.getPlayers(players => {
-				console.log(players);
-			});
+				playerString += player.username;
 
-			// for (let i = 0; i < playerIDs.length; i++) {
-			// 	let player = players.filter(p => p.id === playerIDs[i]);
+				playerString += player.ready ? ' (bereit)' : ' (nicht bereit)';
 
-			// 	returnStr += player.username;
+				playerString += i + 1 === playerIDs.length ? '' : ', ';
+			}
 
-			// 	returnStr += player.ready ? ' (bereit)' : ' (nicht bereit)';
-
-			// 	returnStr += i + 1 === playerIDs.length ? '' : ', ';
-			// }
-
-			return returnStr;
+			this.ingamePlayers = playerString;
+		},
+		async getAdminName() {
+			const admin = await PlayerService.getPlayer(this.game.playerIDs[0]);
+			this.adminName = admin.username;
 		},
 		leaveGame() {
 			// TODO check function

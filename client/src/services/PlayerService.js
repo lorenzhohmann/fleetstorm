@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = 'http://localhost:3000/api/player';
+const url = 'http://localhost:3000/api/player/';
 
 export default {
 	createPlayer(username) {
@@ -13,7 +13,7 @@ export default {
 		axios.delete(url, {username});
 	},
 	getPlayer(playerID) {
-		return axios.get(url, {playerID}).then(response => response.data);
+		return axios.get(`${url}${playerID}`).then(response => response.data);
 	},
 	getPlayers() {
 		return axios.get(url).then(response => response.data);

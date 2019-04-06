@@ -22,11 +22,26 @@ module.exports = class Manager {
 	static deleteGame(game) {
 		games = games.filter(g => g.gameCode !== game.gameCode);
 	}
+	static updateGame(game) {
+		games.forEach((g, index) => {
+			if (g.gameCode === game.gameCode) {
+				games[index] = game;
+			}
+		});
+	}
+
 	static usernameExists(username) {
 		return players.filter(p => p.username == username).length >= 1;
 	}
 	static getPlayers() {
 		return players;
+	}
+	static updatePlayer(player) {
+		players.forEach((p, index) => {
+			if (p.id === player.id) {
+				players[index] = player;
+			}
+		});
 	}
 	static addPlayer(username) {
 		const player = new Player(username);
