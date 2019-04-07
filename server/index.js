@@ -4,11 +4,14 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const GameMaster = require('./GameMaster.js');
 
 const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.json());
 app.use(cors());
+
+const startedGames = [];
 
 io.on('connection', function(socket) {
 	socket.on('playerJoinGame', data => {
@@ -22,8 +25,22 @@ io.on('connection', function(socket) {
 		io.emit('updateGameVars');
 	});
 
+	socket.on('redirectToPlayingArea', data => {
+		io.emit('redirectToPlayingArea', data);
+	});
+
+	socket.on('nextPlayer', data => {
+		io.emit('nextPlayer', data);
+	});
+
 	socket.on('startGame', data => {
-		io.emit('startGame', data);
+		if (!startedGames.filter(code => code === data.gameCode).length) {
+			startedGames.push(data.gameCode);
+			const gm = new GameMaster(data.gameCode, socket, io);
+			gm.startGame();
+		} else {
+			console.log('game already initialized');
+		}
 	});
 
 	socket.on('disconnect', data => {

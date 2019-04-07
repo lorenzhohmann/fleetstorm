@@ -46,14 +46,13 @@ export default {
 		// get gameCode from store (set in Enter or Create Game)
 		const gameCode = this.$route.params.gameCode;
 
-		const player = this.$store.state.player;
-		this.player = player;
+		this.player = this.$store.state.player;
 
 		// search for game
 		GameService.getGame(gameCode)
 			.then(async game => {
 				// redirect user to enter area if no player is set
-				if (!player) {
+				if (!this.player) {
 					this.$router.push({
 						path: '/game/enter'
 					});
@@ -62,7 +61,7 @@ export default {
 
 				// if game is full
 				if (
-					!GameService.playerIsInGame(player, game) &&
+					!GameService.playerIsInGame(this.player, game) &&
 					game.playerIDs.length >= game.maxPlayers
 				) {
 					this.$router.push({
@@ -86,8 +85,11 @@ export default {
 				}
 
 				// add player if not in game
-				if (!GameService.playerIsInGame(player, game)) {
-					game = await GameService.addPlayerToGame(game.gameCode, player.id);
+				if (!GameService.playerIsInGame(this.player, game)) {
+					game = await GameService.addPlayerToGame(
+						game.gameCode,
+						this.player.id
+					);
 				}
 
 				// add socket event for user joining
@@ -128,17 +130,6 @@ export default {
 
 			// update admin name
 			this.getAdminName();
-		},
-		startGame: async function(data) {
-			// update game status
-			const gameCode = data.gameCode;
-			const game = await GameService.getGame(gameCode);
-			game.state = 1;
-
-			// redirect to playing area
-			GameService.updateGame(game).then(() => {
-				this.$router.push(`/match/${gameCode}/playing`);
-			});
 		}
 	},
 	methods: {

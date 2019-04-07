@@ -11,6 +11,7 @@ module.exports = class Game {
 		this.playerIDs = [];
 		this.gameCode = gameCode;
 		this.fieldsize = 10;
+		this.nextPlayerIndex = -1;
 	}
 	addPlayer(playerID) {
 		if (this.playerIDs.length < this.maxPlayers) this.playerIDs.push(playerID);

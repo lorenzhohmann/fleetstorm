@@ -62,12 +62,14 @@ export default {
 			player: {},
 			game: {
 				playerIDs: []
-			}
+			},
+			gameCode: ''
 		};
 	},
 	async created() {
 		// get gameCode from store (set in Enter or Create Game)
 		const gameCode = this.$route.params.gameCode;
+		this.gameCode = gameCode;
 
 		const player = this.$store.state.player;
 		this.player = player;
@@ -129,6 +131,11 @@ export default {
 			GameService.getGame(gameCode).then(async game => {
 				this.game = game;
 			});
+		},
+		redirectToPlayingArea: function(data) {
+			if (this.game.gameCode == data.gameCode) {
+				this.$router.push(`/match/${data.gameCode}/playing`);
+			}
 		}
 	},
 	methods: {
@@ -274,19 +281,19 @@ export default {
 		getField(x, y) {
 			return this.fields.filter(f => f.x === x && f.y === y)[0];
 		},
-		clicked(x, y) {},
 		async readyPlayer() {
 			// set ready state
 			this.player.ready = true;
 
-			// start game when all players ready
-			const playerIDs = this.game.playerIDs;
-			if (playerIDs.length >= this.game.minPlayers) {
-				this.$socket.emit('startGame', {gameCode: this.game.gameCode});
-			}
-
 			this.player = await PlayerService.updatePlayer(this.player);
 			this.$store.dispatch('setPlayer', this.player);
+
+			// start game when all players ready
+			// TODO get ready players
+			const playerIDs = this.game.playerIDs;
+			if (playerIDs.length >= this.game.minPlayers) {
+				this.$socket.emit('redirectToPlayingArea', {gameCode: this.gameCode});
+			}
 
 			// update game
 			this.$socket.emit('updateGameVars');
@@ -294,64 +301,3 @@ export default {
 	}
 };
 </script>
-<style>
-.matchfield {
-	border-radius: 10px;
-	padding: 1rem;
-	width: 600px;
-	height: 600px;
-	table-layout: fixed;
-	margin: 0 auto;
-
-	background-color: rgba(8, 98, 138, 0.8);
-	background-image: url(../../public/img/matchfield-background.jpg);
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: cover;
-}
-.matchfield td,
-.matchfield th {
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	text-align: center;
-}
-.matchfield th {
-	font-size: 40px;
-	background-color: #08628a;
-	color: #fff;
-}
-.matchfield tr {
-	height: 3rem;
-}
-.matchfield td {
-	opacity: 0.9;
-}
-.matchfield td.x,
-.matchfield td.y {
-	border: none;
-}
-.matchfield td.hasShip {
-	background-image: url(../../public/img/ship.png);
-	background-color: transparent;
-	background-position: center;
-	background-size: cover;
-	background-repeat: no-repeat;
-}
-.matchfield td.y {
-	transform: rotate(90deg);
-}
-.matchfield td.start.x {
-	background-position: left center;
-}
-.matchfield td.end.x {
-	background-position: left center;
-	transform: rotate(180deg);
-}
-.matchfield td.start.y {
-	background-position: left center;
-	transform: rotate(90deg);
-}
-.matchfield td.end.y {
-	background-position: left center;
-	transform: rotate(270deg);
-}
-</style>
