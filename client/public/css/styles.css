@@ -138,6 +138,16 @@ h3 {
 .matchfield td {
 	opacity: 0.9;
 }
+.matchfield td.hit {
+	background-image: url(../img/x.png);
+	background-size: cover;
+	opacity: 0.5;
+}
+.matchfield td.shipHit {
+	background-image: url(../img/bomb.png);
+	background-size: cover;
+	opacity: 0.5;
+}
 .matchfield td.x,
 .matchfield td.y {
 	border: none;

@@ -6,5 +6,6 @@ module.exports = class Player {
 		this.username = username;
 		this.ships = [];
 		this.ready = false;
+		this.hits = [];
 	}
 };

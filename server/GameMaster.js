@@ -7,24 +7,36 @@ module.exports = class GameMaster {
 		console.log('gamemaster for ' + gameCode + ' initialized');
 		this.game = Manager.getGame(gameCode);
 		this.socket = socket;
+		this.interval;
 		this.io = io;
 	}
 	startGame() {
-		this.game.state = 1;
+		if (this.game.state === 0) {
+			this.game.state = 1;
 
-		this.nextPlayer();
+			this.nextPlayer();
+		}
 	}
 	nextPlayer() {
+		console.log('NEXT PLAYER');
 		// get next player id
 		let playerInTurn;
 		this.game.nextPlayerIndex++;
+
+		// set 0 if end of array
+		if (this.game.nextPlayerIndex >= this.game.playerIDs.length)
+			this.game.nextPlayerIndex = 0;
+
 		playerInTurn = Manager.getPlayer(
 			this.game.playerIDs[this.game.nextPlayerIndex]
 		);
+		console.log(this.game);
 
 		// emit to frontend
 		// TODO start when all players online
-		setInterval(() => {
+		clearInterval(this.interval);
+		// this.interval = setInterval(() => {
+		setTimeout(() => {
 			const allPlayers = Manager.getPlayers();
 			const otherPlayers = [];
 			allPlayers.forEach(player => {
@@ -40,6 +52,16 @@ module.exports = class GameMaster {
 				playerInTurn,
 				otherPlayers
 			});
-		}, 10000);
+		}, 1000);
+		// }, 1000);
+
+		// socket for next player
+		this.socket.on('nextPlayer', data => {
+			console.log(this.game.gameCode);
+			console.log('next player in ' + data.gameCode);
+			if (data.gameCode === this.game.gameCode) {
+				this.nextPlayer();
+			}
+		});
 	}
 };

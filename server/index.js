@@ -29,8 +29,8 @@ io.on('connection', function(socket) {
 		io.emit('redirectToPlayingArea', data);
 	});
 
-	socket.on('nextPlayer', data => {
-		io.emit('nextPlayer', data);
+	socket.on('foobar', data => {
+		console.log('foobar');
 	});
 
 	socket.on('startGame', data => {

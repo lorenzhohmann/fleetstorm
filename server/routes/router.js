@@ -81,6 +81,7 @@ router.put('/game', (req, res) => {
 	}
 
 	Manager.updateGame(req.body.game);
+	game = Manager.getGame(gameCode);
 	res.status(200).send(game);
 });
 
@@ -146,6 +147,7 @@ router.put('/player', (req, res) => {
 	}
 
 	Manager.updatePlayer(req.body.player);
+	player = Manager.getPlayer(playerID);
 	res.status(200).send(player);
 });
 

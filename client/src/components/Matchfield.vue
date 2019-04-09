@@ -284,6 +284,7 @@ export default {
 		async readyPlayer() {
 			// set ready state
 			this.player.ready = true;
+			console.log(this.player);
 
 			this.player = await PlayerService.updatePlayer(this.player);
 			this.$store.dispatch('setPlayer', this.player);

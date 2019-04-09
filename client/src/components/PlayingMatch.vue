@@ -5,7 +5,8 @@
 			v-bind:class="{
 				'alert-info': message.state == 'info',
 				'alert-danger': message.state == 'danger',
-				'alert-success': message.state == 'success'
+				'alert-success': message.state == 'success',
+				'alert-warning': message.state == 'warning'
 			}"
 			v-if="message.show"
 		>
@@ -29,15 +30,18 @@
 				Gebiet von <b>{{ entity.username }}</b>
 			</h3>
 			<table class="matchfield">
-				<tr v-for="y in game.fieldsize">
+				<tr v-for="y in game.fieldsize" v-bind:key="y">
 					<td
-						v-bind:click="shoot(x - 1, y - 1)"
+						v-on:click="shoot(x - 1, y - 1)"
 						v-if="getField(x - 1, y - 1)"
 						v-for="x in game.fieldsize"
+						v-bind:key="x"
 						v-bind:class="{
 							hasShip: getField(x - 1, y - 1).ship,
 							end: getField(x - 1, y - 1).end,
 							start: getField(x - 1, y - 1).start,
+							hit: getField(x - 1, y - 1).hit,
+							shipHit: getField(x - 1, y - 1).shipHit,
 							x: getField(x - 1, y - 1).orientation == 'x',
 							y: getField(x - 1, y - 1).orientation == 'y'
 						}"
@@ -66,6 +70,7 @@ export default {
 			},
 			fields: [],
 			player: {},
+			gameCode: '',
 			showCountdown: true,
 			message: {
 				show: false,
@@ -73,14 +78,16 @@ export default {
 				state: 'info'
 			},
 			myTurn: false,
+			shooted: false,
 			playerInTurn: {},
 			otherPlayers: [],
 			entity: {}
 		};
 	},
 	async created() {
-		// get gamCode for getting game
+		// get gameCode for getting game
 		const gameCode = this.$route.params.gameCode;
+		this.gameCode = gameCode;
 		try {
 			GameService.getGame(gameCode).then(async game => {
 				this.game = game;
@@ -88,8 +95,6 @@ export default {
 
 				// check user rights, states, etc.
 				await this.startupCheck();
-
-				this.fillFields();
 
 				// start game (managed server-side)
 				this.$socket.emit('startGame', {gameCode: this.game.gameCode});
@@ -105,33 +110,90 @@ export default {
 	},
 	methods: {
 		fillFields() {
+			this.fields = [];
 			for (let x = 0; x < this.game.fieldsize; x++) {
 				for (let y = 0; y < this.game.fieldsize; y++) {
 					this.fields.push({
 						x,
 						y,
-						ship: false
+						ship: false,
+						hit: false,
+						shipHit: false
 					});
 				}
 			}
 		},
 		shoot(x, y) {
-			// TODO NEXT
+			// check if already shoot
+			if (this.shooted) {
+				return false;
+			}
+
+			// check if not hitted before
+			let hitted = false;
+			this.entity.hits.forEach(hit => {
+				if (hit.x === x && hit.y === y) {
+					hitted = true;
+				}
+			});
+			if (hitted) {
+				this.showMessage(
+					'Dieses Feld wurde bereits beschossen. Bitte wähle ein anderes aus.',
+					'warning'
+				);
+			}
+
+			// add hit to entities field
+			this.entity.hits.push({
+				x,
+				y,
+				playerID: this.player.id
+			});
+
+			this.shooted = true;
+
+			let field = this.getField(x, y);
+			field.hit = true;
+
+			// loop over all ships and search for hit
+			let shipHit = false;
+			this.entity.ships.forEach(ship => {
+				if (ship.x === x && ship.y === y && !ship.hit) {
+					ship.hit = true;
+					field.shipHit = true;
+					this.showMessage(
+						'Ein gegnerisches Schiff wurde getroffen! Gut gemacht, Soldat! Du hast noch einen Versuch.',
+						'success'
+					);
+					shipHit = true;
+					this.shooted = false;
+				}
+			});
+
+			// when no ship hit => next player
+			if (!shipHit) {
+				this.$socket.emit('nextPlayer', {gameCode: this.gameCode});
+			}
 		},
 		entityChanged(entity) {
+			this.fillFields();
+
 			this.entity = entity;
 
-			// this.entity.ships.forEach(ship => {
-			// 	let field = this.getField(ship.x, ship.y);
-			// 	field.ship = true;
-			// 	field.end = ship.end;
-			// 	field.start = ship.start;
-			// 	field.orientation = ship.orientation;
-			// 	field.special = ship.special;
-			// });
+			this.entity.ships.forEach(ship => {
+				let field = this.getField(ship.x, ship.y);
+				// field.ship = true;
+				// field.end = ship.end;
+				// field.start = ship.start;
+				// field.orientation = ship.orientation;
+				// field.special = ship.special;
+			});
 
-			console.log(this.fields);
-			console.log(this.entity);
+			// set hits
+			this.entity.hits.forEach(hit => {
+				let field = this.getField(hit.x, hit.y);
+				field.hit = true;
+			});
 		},
 		async startupCheck() {
 			return new Promise((resolve, reject) => {
@@ -161,6 +223,10 @@ export default {
 	},
 	sockets: {
 		nextPlayer: function(data) {
+			// reset view data
+			this.entity = {};
+			this.shooted = false;
+
 			// if emit is for current game
 			if (this.game.gameCode == data.gameCode) {
 				// get refreshed game var
