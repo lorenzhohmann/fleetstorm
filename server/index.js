@@ -11,8 +11,6 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(cors());
 
-const startedGames = [];
-
 io.on('connection', function(socket) {
 	socket.on('playerJoinGame', data => {
 		io.emit('updateGameVars');
@@ -29,22 +27,18 @@ io.on('connection', function(socket) {
 		io.emit('redirectToPlayingArea', data);
 	});
 
-	socket.on('foobar', data => {
-		console.log('foobar');
-	});
-
-	socket.on('startGame', data => {
-		if (!startedGames.filter(code => code === data.gameCode).length) {
-			startedGames.push(data.gameCode);
-			const gm = new GameMaster(data.gameCode, socket, io);
-			gm.startGame();
-		} else {
-			console.log('game already initialized');
-		}
-	});
-
 	socket.on('disconnect', data => {
 		io.emit('updateGameVars');
+	});
+
+
+	// sockets for gamemaster
+	socket.on('startGame', data => {
+		GameMaster.startGame(data.gameCode, io);
+	});
+
+	socket.on('nextPlayer', data => {
+		GameMaster.nextPlayer(data.gameCode, io);
 	});
 });
 

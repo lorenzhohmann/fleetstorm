@@ -3,65 +3,48 @@ const Game = require('./models/Game');
 const Player = require('./models/Player');
 
 module.exports = class GameMaster {
-	constructor(gameCode, socket, io) {
+	static startGame(gameCode, io) {
 		console.log('gamemaster for ' + gameCode + ' initialized');
-		this.game = Manager.getGame(gameCode);
-		this.socket = socket;
-		this.interval;
-		this.io = io;
-	}
-	startGame() {
-		if (this.game.state === 0) {
-			this.game.state = 1;
+		const game = Manager.getGame(gameCode);
 
-			this.nextPlayer();
+		if (game.state === 0) {
+			game.state = 1;
+
+			GameMaster.nextPlayer(gameCode, io);
 		}
 	}
-	nextPlayer() {
-		console.log('NEXT PLAYER');
+	static nextPlayer(gameCode, io) {
+		console.log('next player in ' + gameCode);
+		const game = Manager.getGame(gameCode);
+
 		// get next player id
 		let playerInTurn;
-		this.game.nextPlayerIndex++;
+		game.nextPlayerIndex++;
 
 		// set 0 if end of array
-		if (this.game.nextPlayerIndex >= this.game.playerIDs.length)
-			this.game.nextPlayerIndex = 0;
+		if (game.nextPlayerIndex >= game.playerIDs.length) game.nextPlayerIndex = 0;
 
-		playerInTurn = Manager.getPlayer(
-			this.game.playerIDs[this.game.nextPlayerIndex]
-		);
-		console.log(this.game);
+		playerInTurn = Manager.getPlayer(game.playerIDs[game.nextPlayerIndex]);
+		console.log(game);
+		console.log(playerInTurn);
 
 		// emit to frontend
-		// TODO start when all players online
-		clearInterval(this.interval);
-		// this.interval = setInterval(() => {
 		setTimeout(() => {
 			const allPlayers = Manager.getPlayers();
 			const otherPlayers = [];
 			allPlayers.forEach(player => {
 				if (
-					this.game.playerIDs.indexOf(player.id) > -1 &&
+					game.playerIDs.indexOf(player.id) > -1 &&
 					player.id !== playerInTurn.id
 				) {
 					otherPlayers.push(player);
 				}
 			});
-			this.io.emit('nextPlayer', {
-				gameCode: this.game.gameCode,
+			io.emit('nextPlayer', {
+				gameCode: game.gameCode,
 				playerInTurn,
 				otherPlayers
 			});
 		}, 1000);
-		// }, 1000);
-
-		// socket for next player
-		this.socket.on('nextPlayer', data => {
-			console.log(this.game.gameCode);
-			console.log('next player in ' + data.gameCode);
-			if (data.gameCode === this.game.gameCode) {
-				this.nextPlayer();
-			}
-		});
 	}
 };

@@ -97,7 +97,7 @@ export default {
 				await this.startupCheck();
 
 				// start game (managed server-side)
-				this.$socket.emit('startGame', {gameCode: this.game.gameCode});
+				this.$socket.emit('startGame', { gameCode: this.game.gameCode });
 			});
 		} catch (err) {
 			this.$router.push({
@@ -123,7 +123,7 @@ export default {
 				}
 			}
 		},
-		shoot(x, y) {
+		async shoot(x, y) {
 			// check if already shoot
 			if (this.shooted) {
 				return false;
@@ -170,9 +170,17 @@ export default {
 				}
 			});
 
+			// check if ship is completed
+			// TODO NEXT
+
+			// check if all ships down => show end sequence
+			// TODO
+
+			this.entity = await PlayerService.updatePlayer(this.entity);
+
 			// when no ship hit => next player
 			if (!shipHit) {
-				this.$socket.emit('nextPlayer', {gameCode: this.gameCode});
+				this.$socket.emit('nextPlayer', { gameCode: this.gameCode });
 			}
 		},
 		entityChanged(entity) {
@@ -180,19 +188,18 @@ export default {
 
 			this.entity = entity;
 
-			this.entity.ships.forEach(ship => {
-				let field = this.getField(ship.x, ship.y);
-				// field.ship = true;
-				// field.end = ship.end;
-				// field.start = ship.start;
-				// field.orientation = ship.orientation;
-				// field.special = ship.special;
-			});
-
 			// set hits
 			this.entity.hits.forEach(hit => {
 				let field = this.getField(hit.x, hit.y);
 				field.hit = true;
+
+				// if hit is ship hit
+				if (
+					this.entity.ships.filter(ship => ship.x === hit.x && ship.y === hit.y)
+						.length
+				) {
+					field.shipHit = true;
+				}
 			});
 		},
 		async startupCheck() {
@@ -226,6 +233,7 @@ export default {
 			// reset view data
 			this.entity = {};
 			this.shooted = false;
+			this.hideMessage();
 
 			// if emit is for current game
 			if (this.game.gameCode == data.gameCode) {

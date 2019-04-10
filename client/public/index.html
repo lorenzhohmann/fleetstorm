@@ -25,5 +25,15 @@
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+      $(function() {
+        $(window).on('load', function() {
+          $('.lds-ring').fadeOut(800);
+          $('.preloader').delay(800).fadeOut(800);
+        });
+      });
+    </script>
   </body>
 </html>
