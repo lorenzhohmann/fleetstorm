@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css?family=Germania+One|Poppins');
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+
+	font-family: 'Poppins', sans-serif;
+}
+
+h1 {
+	font-family: 'Germania One', cursive;
+}
+
+#bg {
+	background-image: url('../img/background-2.jpg');
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-attachment: fixed;
+	background-position: center;
+
+	position: fixed;
+	left: 0;
+	top: 0;
+	z-index: -1;
+
+	width: 100vw;
+	height: 100vh;
+}
+
+.main-headline {
+	font-size: 12rem;
+	text-align: center;
+	position: relative;
+	color: #08628a;
+}
+
+.main-headline .small {
+	position: absolute;
+	bottom: 0;
+	left: 6.5rem;
+	font-size: 2rem;
+	color: #949494;
+}
+
+.container {
+	background-color: rgba(255, 255, 255, 0.8);
+	min-height: 70vh;
+	padding: 3rem 6rem;
+
+	-webkit-box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.52);
+	-moz-box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.52);
+	box-shadow: 0px 0px 12px 1px rgba(0, 0, 0, 0.52);
+}
+
+.section {
+	/*	border-top: 1px solid #a7a7a7;
+	border-bottom: 1px solid #a7a7a7;*/
+	padding: 1rem 0;
+}
+
+.button-container {
+	margin-top: 10rem;
+}
+
+.btn-primary {
+	background-color: #08628a;
+	border-color: #08628a;
+}
+.btn {
+	cursor: pointer;
+}
+
+h2 {
+	font-size: 3rem;
+	margin-top: 2rem;
+	padding-top: 2rem;
+	border-top: 2px solid #08628a;
+}
+
+.mt-10 {
+	margin-top: 10rem;
+}
+
+h3 {
+	padding: 10px 25px;
+	font-size: 22px;
+	color: #fff;
+
+	background-color: rgba(8, 98, 138, 0.8);
+
+	/*background: -moz-linear-gradient(
+		left,
+		rgba(8, 98, 138, 1) 0%,
+		rgba(255, 255, 255, 0) 66%
+	);
+	background: -webkit-linear-gradient(
+		left,
+		rgba(8, 98, 138, 1) 0%,
+		rgba(255, 255, 255, 0) 66%
+	);
+	background: linear-gradient(
+		to right,
+		rgba(8, 98, 138, 1) 0%,
+		rgba(255, 255, 255, 0) 66%
+	);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#08628a', endColorstr='#00ffffff',GradientType=1 );*/
+}
+
+/* MATCHFIELD */
+.matchfield {
+	border-radius: 10px;
+	padding: 1rem;
+	width: 600px;
+	height: 600px;
+	table-layout: fixed;
+	margin: 0 auto;
+
+	background-color: rgba(8, 98, 138, 0.8);
+	background-image: url(../img/matchfield-background.jpg);
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: cover;
+}
+.matchfield td,
+.matchfield th {
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	text-align: center;
+}
+.matchfield th {
+	font-size: 40px;
+	background-color: #08628a;
+	color: #fff;
+}
+.matchfield tr {
+	height: 3rem;
+}
+.matchfield td {
+	opacity: 0.9;
+}
+.matchfield td.hit {
+	background-image: url(../img/x.png);
+	background-size: cover;
+	opacity: 0.5;
+}
+.matchfield td.shipHit {
+	background-image: url(../img/bomb.png);
+	background-size: cover;
+	opacity: 0.5;
+}
+.matchfield td.x,
+.matchfield td.y {
+	border: none;
+}
+.matchfield td.hasShip {
+	background-image: url(../img/ship.png);
+	background-color: transparent;
+	background-position: center;
+	background-size: cover;
+	background-repeat: no-repeat;
+}
+.matchfield td.y {
+	transform: rotate(90deg);
+}
+.matchfield td.start.x {
+	background-position: left center;
+}
+.matchfield td.end.x {
+	background-position: left center;
+	transform: rotate(180deg);
+}
+.matchfield td.start.y {
+	background-position: left center;
+	transform: rotate(90deg);
+}
+.matchfield td.end.y {
+	background-position: left center;
+	transform: rotate(270deg);
+}

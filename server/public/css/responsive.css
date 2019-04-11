@@ -1,0 +1,70 @@
+@media (max-width: 992px) {
+	.container {
+		margin: 0 10px;
+		width: 100%;
+		max-width: calc(100% - 20px);
+		min-height: 100vh;
+	}
+	.main-headline {
+		font-size: 8rem;
+	}
+	.matchfield {
+		width: 560px !important;
+		height: 560px !important;
+	}
+	.matchfield tr {
+		height: 3rem !important;
+	}
+	.matchfield th {
+		font-size: 30px !important;
+	}
+}
+
+@media (max-width: 768px) {
+	.container {
+		padding: 1rem;
+		margin: 0 !important;
+		max-width: 100%;
+	}
+	.button-container {
+		margin-top: 5rem;
+		padding: 0 !important;
+	}
+	.content-container {
+		padding: 2rem 0 !important;
+	}
+	.matchfield {
+		width: 450px !important;
+		height: 450px !important;
+	}
+	.matchfield th {
+		font-size: 25px !important;
+	}
+	.matchfield tr {
+		height: 2.5rem !important;
+	}
+}
+
+@media (max-width: 576px) {
+	.main-headline {
+		font-size: 4rem;
+	}
+	h2 {
+		font-size: 2rem;
+		margin-top: 0;
+		padding-top: 1rem;
+	}
+	.content-container {
+		padding: 1rem 0 !important;
+	}
+	.matchfield {
+		width: 300px !important;
+		height: 300px !important;
+	}
+	.matchfield th {
+		font-size: 20px !important;
+	}
+	.matchfield tr {
+		height: 2rem !important;
+	}
+}

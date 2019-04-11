@@ -9,12 +9,11 @@
 				'alert-warning': message.state == 'warning'
 			}"
 			v-if="message.show"
-		>
-			{{ message.msg }}
-		</div>
+			v-html="message.msg"
+		></div>
 		<div
 			class="choose-player-container section"
-			v-if="myTurn && !entity.id"
+			v-if="myTurn && !entity.id && !ended"
 		>
 			<h3>Wähle einen Spieler den du angreifen möchtest</h3>
 			<div class="entity-box">
@@ -28,7 +27,7 @@
 				</button>
 			</div>
 		</div>
-		<div class="choose-player-container section" v-if="entity.id">
+		<div class="choose-player-container section" v-if="entity.id && !ended">
 			<h3>
 				Gebiet von <b>{{ entity.username }}</b>
 			</h3>
@@ -45,6 +44,7 @@
 							start: getField(x - 1, y - 1).start,
 							hit: getField(x - 1, y - 1).hit,
 							shipHit: getField(x - 1, y - 1).shipHit,
+							hasShip: getField(x - 1, y - 1).hasShip,
 							x: getField(x - 1, y - 1).orientation == 'x',
 							y: getField(x - 1, y - 1).orientation == 'y'
 						}"
@@ -52,10 +52,24 @@
 				</tr>
 			</table>
 		</div>
-		<div class="choose-player-container section" v-if="!myTurn">
-			<h3>
+		<div class="choose-player-container section" v-if="!myTurn && !ended">
+			<h3 v-if="inRound">
 				<b>{{ playerInTurn.username }}</b> ist am Zug
 			</h3>
+		</div>
+		<div class="game-is-sick" v-if="!inRound && !entity.id">
+			<h3>
+				<div class="spinner-grow text-light" role="status">
+					<span class="sr-only">Loading...</span>
+				</div>
+				Einen Moment, Soldat..!
+			</h3>
+			<div class="admin-container" v-if="player.id == game.playerIDs[0]">
+				<p></p>
+				<button class="btn btn-primary" v-on:click="reloadGame()">
+					Spiel nachladen
+				</button>
+			</div>
 		</div>
 	</div>
 </template>
@@ -63,6 +77,8 @@
 <script>
 import GameService from '@/services/GameService.js';
 import PlayerService from '@/services/PlayerService.js';
+
+// TODO: SPIEL HÄNGT FÜR ALLE ANZEIGEN NACH 5 SEKUNDEN => BEI KLICK MSG AN SERVER
 
 export default {
 	name: 'PlayingMatch',
@@ -74,7 +90,8 @@ export default {
 			fields: [],
 			player: {},
 			gameCode: '',
-			showCountdown: true,
+			inRound: false,
+			ended: false,
 			message: {
 				show: false,
 				msg: '',
@@ -108,8 +125,7 @@ export default {
 			this.$router.push({
 				name: 'home',
 				params: {
-					error:
-						'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #PM)'
+					error: 'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #PM)'
 				}
 			});
 		}
@@ -128,6 +144,11 @@ export default {
 					});
 				}
 			}
+
+			// set ship attributes
+			this.entity.ships.forEach(ship => {
+				let field = this.getField(ship.x, ship.y);
+			});
 		},
 		async shoot(x, y) {
 			// check if already shoot
@@ -143,10 +164,11 @@ export default {
 				}
 			});
 			if (hitted) {
-				this.showMessage(
-					'Dieses Feld wurde bereits beschossen. Bitte wähle ein anderes aus.',
-					'warning'
-				);
+				// this.showMessage(
+				// 	'Dieses Feld wurde bereits beschossen. Bitte wähle ein anderes aus.',
+				// 	'warning'
+				// );
+				return false;
 			}
 
 			// add hit to entities field
@@ -168,49 +190,95 @@ export default {
 					ship.hit = true;
 					field.shipHit = true;
 					this.showMessage(
-						'Ein gegnerisches Schiff wurde getroffen! Gut gemacht, Soldat! Du hast noch einen Versuch.',
+						`Deine Bombe ist auf dem Schiff von <b>${
+							this.entity.username
+						}</b> gelandet! Sehr gut!`,
 						'info'
 					);
 					shipHit = true;
 					this.shooted = false;
 
+					// send message to entity
+					this.$socket.emit('hit', {
+						gameCode: this.game.gameCode,
+						attacker: this.player,
+						entity: this.entity,
+						type: 'normal'
+					});
+
 					// check if ship is completed
 					let shipHits = 0;
 					this.entity.ships.forEach(s => {
 						if (s.id === ship.id) {
-							console.log('ids: ' + s.id + ' ' + ship.id);
 							let field = this.getField(s.x, s.y);
 
 							if (field.hit) shipHits++;
 						}
 					});
-					console.log(shipHits, ship.length);
+
+					// if ship is hitted completely
 					if (shipHits === ship.length) {
 						ship.sunk = true;
 						this.showMessage(
-							'Schiff versenkt, Captain!',
+							`Du hast ein Schiff von <b>${
+								this.entity.username
+							}</b> versenkt! Sehr gut, Captain!`,
 							'success'
 						);
+
+						// send message to entity
+						this.$socket.emit('hit', {
+							gameCode: this.game.gameCode,
+							attacker: this.player,
+							entity: this.entity,
+							type: 'sunk'
+						});
 					}
 				}
 			});
 
 			// check if all ships down => show end sequence
-			if (false) {
-				alert('SPIEL BEENDET');
+			const hittedShipParts = this.entity.ships.filter(ship => ship.hit);
+			let shipPartsSunk = hittedShipParts.length;
+			if (shipPartsSunk === this.entity.ships.length && shipPartsSunk > 0) {
+				this.$socket.emit('hit', {
+					gameCode: this.game.gameCode,
+					attacker: this.player,
+					type: 'winner'
+				});
+				this.showMessage(
+					`Glückwunsch, Solat! Du hast die Schlach gewonnen!`,
+					'success'
+				);
+
+				this.game.state = 2;
+				this.game = await GameService.updateGame(this.game);
+
+				// redirect to home after 5 seconds
+				setTimeout(() => {
+					this.$router.push({
+						name: 'home',
+						params: {
+							error: 'Das Spiel ist vorbei!'
+						}
+					});
+				}, 5000);
+				// this.$socket.emit('deadPlayer', {gameCode: this.gameCode, loser: this.entity});
 			}
 
+			// update entity
 			this.entity = await PlayerService.updatePlayer(this.entity);
 
 			// when no ship hit => next player
 			if (!shipHit) {
+				this.inRound = false;
 				this.$socket.emit('nextPlayer', { gameCode: this.gameCode });
 			}
 		},
 		entityChanged(entity) {
-			this.fillFields();
-
 			this.entity = entity;
+
+			this.fillFields();
 
 			// set hits
 			this.entity.hits.forEach(hit => {
@@ -218,13 +286,29 @@ export default {
 				field.hit = true;
 
 				// if hit is ship hit
-				if (
-					this.entity.ships.filter(
-						ship => ship.x === hit.x && ship.y === hit.y
-					).length
-				) {
-					field.shipHit = true;
-				}
+				this.entity.ships.forEach(ship => {
+					if (ship.x === hit.x && ship.y === hit.y) {
+						field.shipHit = true;
+
+						// TODO only when ship is completely hitted
+						// let shipHits = 0;
+						// this.entity.ships.forEach(s => {
+						// 	if (s.id === ship.id) {
+						// 		let f = this.getField(s.x, s.y);
+
+						// 		if (f.hit) shipHits++;
+						// 	}
+						// });
+
+						// // if ship is hitted completely
+						// if (shipHits === ship.length) {
+						// 	field.hasShip = true;
+						// 	field.start = ship.start;
+						// 	field.end = ship.end;
+						// 	field.orientation = ship.orientation;
+						// }
+					}
+				});
 			});
 		},
 		async startupCheck() {
@@ -234,8 +318,7 @@ export default {
 					this.$router.push({
 						name: 'home',
 						params: {
-							error:
-								'Ich glaube nicht, dass du hier richtig bist..'
+							error: 'Ich glaube nicht, dass du hier richtig bist..'
 						}
 					});
 				}
@@ -252,35 +335,84 @@ export default {
 		},
 		getField(x, y) {
 			return this.fields.filter(f => f.x === x && f.y === y)[0];
+		},
+		reloadGame() {
+			this.$socket.emit('nextPlayer', { gameCode: this.game.gameCode });
+			this.showMessage('Spiel nachladen..!', 'warning');
 		}
 	},
 	sockets: {
 		nextPlayer: function(data) {
-			// reset view data
-			this.entity = {};
-			this.shooted = false;
-			this.hideMessage();
-
 			// if emit is for current game
 			if (this.game.gameCode == data.gameCode) {
+				// TODO ERROR HANDLING OR REDIRECT TO END PAGE
+				if (this.ended) {
+					return false;
+				}
+
+				// reset view data
+				this.entity = {};
+				this.shooted = false;
+				this.hideMessage();
+
 				// get refreshed game var
 				const gameCode = this.$route.params.gameCode;
 				GameService.getGame(gameCode).then(async game => {
 					this.game = game;
 				});
 
+				// set new socket vars
+				this.otherPlayers = data.otherPlayers;
+				this.inRound = true;
+
 				if (data.playerInTurn.id === this.player.id) {
 					// own turn
 					this.myTurn = true;
 					console.log('my turn');
+
+					// if two players => choose entity directly
+					if (this.game.playerIDs.length === 2) {
+						this.entityChanged(this.otherPlayers[0]);
+					}
 				} else {
 					// others turn
 					this.myTurn = false;
 					this.playerInTurn = data.playerInTurn;
 					console.log('not my turn');
 				}
+			}
+		},
+		hit: function(data) {
+			// if emit is for current game
+			if (this.game.gameCode == data.gameCode) {
+				// dont show message when player is current player
+				if (this.player.id == data.attacker.id) return false;
 
-				this.otherPlayers = data.otherPlayers;
+				switch (data.type) {
+					case 'normal':
+						this.showMessage(
+							`<b>${data.attacker.username}</b> hat ein Schiff von <b>${
+								data.entity.username
+							}</b> getroffen!`,
+							'info'
+						);
+						break;
+					case 'sunk':
+						this.showMessage(
+							`<b>${data.attacker.username}</b> hat ein Schiff von <b>${
+								data.entity.username
+							}</b> versenkt!`,
+							'info'
+						);
+						break;
+					case 'winner':
+						this.ended = true;
+						this.showMessage(
+							`<b>${data.attacker.username}</b> hat die Schlacht gewonnen!`,
+							'success'
+						);
+						break;
+				}
 			}
 		}
 	}

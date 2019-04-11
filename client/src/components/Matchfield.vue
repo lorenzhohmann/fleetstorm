@@ -185,8 +185,7 @@ export default {
 					const y = parseInt(Math.random() * this.game.fieldsize);
 					let field = this.getField(x, y);
 
-					ship.orientation =
-						parseInt(Math.random() * 2) == 1 ? 'x' : 'y';
+					ship.orientation = parseInt(Math.random() * 2) == 1 ? 'x' : 'y';
 
 					// check if ship is set on positions
 					for (let i = 0; i < ship.length; i++) {
@@ -208,7 +207,7 @@ export default {
 						}
 
 						// break loop when ships coolidate
-						if (checkField.ship) {
+						if (checkField == undefined || checkField.ship) {
 							noShip = false;
 							break;
 						}
@@ -218,10 +217,7 @@ export default {
 					switch (ship.special) {
 						case 'side': // extra part on one side of the ship
 							const specialField = this.getField(x + 1, y + 1);
-							if (
-								specialField == undefined ||
-								specialField.ship
-							) {
+							if (specialField == undefined || specialField.ship) {
 								noShip = false;
 								break;
 							}
@@ -252,7 +248,7 @@ export default {
 							}
 
 							this.player.ships.push({
-								id: ship.index,
+								id: ship.id,
 								length: ship.length,
 								x: shipField.x,
 								y: shipField.y,
@@ -266,17 +262,13 @@ export default {
 						// set special ships position
 						switch (ship.special) {
 							case 'side': // extra part on one side of the ship
-								const specialField = this.getField(
-									x + 1,
-									y + 1
-								);
+								const specialField = this.getField(x + 1, y + 1);
 								specialField.ship = true;
-								specialField.orientation =
-									ship.orientation == 'x' ? 'y' : 'x';
+								specialField.orientation = ship.orientation == 'x' ? 'y' : 'x';
 								specialField.end = true;
 
 								this.player.ships.push({
-									id: ship.index,
+									id: ship.id,
 									length: ship.length,
 									x: specialField.x,
 									y: specialField.y,

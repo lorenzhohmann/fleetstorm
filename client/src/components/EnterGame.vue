@@ -69,7 +69,8 @@
 									v-on:click="enterGame(game.gameCode)"
 									v-bind:class="{
 										'btn-success': game.state === 0,
-										'btn-secondary': game.state !== 0
+										'btn-secondary': game.state === 1,
+										'btn-danger': game.state === 2
 									}"
 									class="btn"
 								>

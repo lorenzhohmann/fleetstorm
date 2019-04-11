@@ -10,7 +10,7 @@ module.exports = class Game {
 		this.state = 0;
 		this.playerIDs = [];
 		this.gameCode = gameCode;
-		this.fieldsize = 10;
+		this.fieldsize = 5;
 		this.nextPlayerIndex = -1;
 	}
 	addPlayer(playerID) {
