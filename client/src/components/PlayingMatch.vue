@@ -12,7 +12,10 @@
 		>
 			{{ message.msg }}
 		</div>
-		<div class="choose-player-container section" v-if="myTurn && !entity.id">
+		<div
+			class="choose-player-container section"
+			v-if="myTurn && !entity.id"
+		>
 			<h3>Wähle einen Spieler den du angreifen möchtest</h3>
 			<div class="entity-box">
 				<button
@@ -97,13 +100,16 @@ export default {
 				await this.startupCheck();
 
 				// start game (managed server-side)
-				this.$socket.emit('startGame', { gameCode: this.game.gameCode });
+				this.$socket.emit('startGame', {
+					gameCode: this.game.gameCode
+				});
 			});
 		} catch (err) {
 			this.$router.push({
 				name: 'home',
 				params: {
-					error: 'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #PM)'
+					error:
+						'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #PM)'
 				}
 			});
 		}
@@ -163,18 +169,36 @@ export default {
 					field.shipHit = true;
 					this.showMessage(
 						'Ein gegnerisches Schiff wurde getroffen! Gut gemacht, Soldat! Du hast noch einen Versuch.',
-						'success'
+						'info'
 					);
 					shipHit = true;
 					this.shooted = false;
+
+					// check if ship is completed
+					let shipHits = 0;
+					this.entity.ships.forEach(s => {
+						if (s.id === ship.id) {
+							console.log('ids: ' + s.id + ' ' + ship.id);
+							let field = this.getField(s.x, s.y);
+
+							if (field.hit) shipHits++;
+						}
+					});
+					console.log(shipHits, ship.length);
+					if (shipHits === ship.length) {
+						ship.sunk = true;
+						this.showMessage(
+							'Schiff versenkt, Captain!',
+							'success'
+						);
+					}
 				}
 			});
 
-			// check if ship is completed
-			// TODO NEXT
-
 			// check if all ships down => show end sequence
-			// TODO
+			if (false) {
+				alert('SPIEL BEENDET');
+			}
 
 			this.entity = await PlayerService.updatePlayer(this.entity);
 
@@ -195,8 +219,9 @@ export default {
 
 				// if hit is ship hit
 				if (
-					this.entity.ships.filter(ship => ship.x === hit.x && ship.y === hit.y)
-						.length
+					this.entity.ships.filter(
+						ship => ship.x === hit.x && ship.y === hit.y
+					).length
 				) {
 					field.shipHit = true;
 				}
@@ -209,7 +234,8 @@ export default {
 					this.$router.push({
 						name: 'home',
 						params: {
-							error: 'Ich glaube nicht, dass du hier richtig bist..'
+							error:
+								'Ich glaube nicht, dass du hier richtig bist..'
 						}
 					});
 				}

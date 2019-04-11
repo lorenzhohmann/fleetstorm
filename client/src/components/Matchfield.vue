@@ -28,7 +28,7 @@
 			<button
 				v-if="game.state == 0"
 				v-bind:disabled="player.ready && false"
-				v-bind:class="{pulse: !player.ready}"
+				v-bind:class="{ pulse: !player.ready }"
 				class="btn btn-success mr-1 float-right animated infinite slower"
 				v-on:click="readyPlayer()"
 			>
@@ -77,6 +77,7 @@ export default {
 
 		// create ships
 		this.ships.push({
+			id: 0,
 			length: 3,
 			special: '',
 			orientation: 'x',
@@ -84,6 +85,7 @@ export default {
 			start: false
 		});
 		this.ships.push({
+			id: 1,
 			length: 4,
 			special: '',
 			orientation: 'y',
@@ -91,6 +93,7 @@ export default {
 			start: false
 		});
 		this.ships.push({
+			id: 2,
 			length: 5,
 			special: '',
 			orientation: 'y',
@@ -98,19 +101,21 @@ export default {
 			start: false
 		});
 		this.ships.push({
+			id: 3,
 			length: 2,
 			special: '',
 			orientation: 'x',
 			end: false,
 			start: false
 		});
-		this.ships.push({
-			length: 3,
-			special: 'side',
-			orientation: 'x',
-			end: false,
-			start: false
-		});
+		// this.ships.push({
+		// 	id: 4,
+		// 	length: 3,
+		// 	special: 'side',
+		// 	orientation: 'x',
+		// 	end: false,
+		// 	start: false
+		// });
 
 		for (let x = 0; x < this.game.fieldsize; x++) {
 			for (let y = 0; y < this.game.fieldsize; y++) {
@@ -180,7 +185,8 @@ export default {
 					const y = parseInt(Math.random() * this.game.fieldsize);
 					let field = this.getField(x, y);
 
-					ship.orientation = parseInt(Math.random() * 2) == 1 ? 'x' : 'y';
+					ship.orientation =
+						parseInt(Math.random() * 2) == 1 ? 'x' : 'y';
 
 					// check if ship is set on positions
 					for (let i = 0; i < ship.length; i++) {
@@ -212,7 +218,10 @@ export default {
 					switch (ship.special) {
 						case 'side': // extra part on one side of the ship
 							const specialField = this.getField(x + 1, y + 1);
-							if (specialField == undefined || specialField.ship) {
+							if (
+								specialField == undefined ||
+								specialField.ship
+							) {
 								noShip = false;
 								break;
 							}
@@ -243,6 +252,8 @@ export default {
 							}
 
 							this.player.ships.push({
+								id: ship.index,
+								length: ship.length,
 								x: shipField.x,
 								y: shipField.y,
 								end: shipField.end,
@@ -255,12 +266,18 @@ export default {
 						// set special ships position
 						switch (ship.special) {
 							case 'side': // extra part on one side of the ship
-								const specialField = this.getField(x + 1, y + 1);
+								const specialField = this.getField(
+									x + 1,
+									y + 1
+								);
 								specialField.ship = true;
-								specialField.orientation = ship.orientation == 'x' ? 'y' : 'x';
+								specialField.orientation =
+									ship.orientation == 'x' ? 'y' : 'x';
 								specialField.end = true;
 
 								this.player.ships.push({
+									id: ship.index,
+									length: ship.length,
 									x: specialField.x,
 									y: specialField.y,
 									end: specialField.end,
@@ -293,7 +310,9 @@ export default {
 			// TODO get ready players
 			const playerIDs = this.game.playerIDs;
 			if (playerIDs.length >= this.game.minPlayers) {
-				this.$socket.emit('redirectToPlayingArea', {gameCode: this.gameCode});
+				this.$socket.emit('redirectToPlayingArea', {
+					gameCode: this.gameCode
+				});
 			}
 
 			// update game

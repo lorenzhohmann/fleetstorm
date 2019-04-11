@@ -7,7 +7,7 @@ export default {
 		return axios.get(url).then(response => response.data);
 	},
 	createGame(gameCode) {
-		return axios.post(url, {gameCode});
+		return axios.post(url, { gameCode });
 	},
 	getGame(gameCode) {
 		return axios.get(`${url}/${gameCode}`).then(response => response.data);
@@ -18,7 +18,7 @@ export default {
 			.then(response => response.data);
 	},
 	deleteGame(gameCode) {
-		axios.delete(url, {gameCode});
+		axios.delete(url, { gameCode });
 	},
 	playerIsInGame(player, game) {
 		return game.playerIDs.filter(id => id === player.id).length;
@@ -27,6 +27,6 @@ export default {
 		return axios.post(`${url}/${gameCode}/removePlayer/${playerID}`);
 	},
 	updateGame(game) {
-		return axios.put(url, {game}).then(response => response.data);
+		return axios.put(url, { game }).then(response => response.data);
 	}
 };

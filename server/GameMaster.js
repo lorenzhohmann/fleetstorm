@@ -22,7 +22,8 @@ module.exports = class GameMaster {
 		game.nextPlayerIndex++;
 
 		// set 0 if end of array
-		if (game.nextPlayerIndex >= game.playerIDs.length) game.nextPlayerIndex = 0;
+		if (game.nextPlayerIndex >= game.playerIDs.length)
+			game.nextPlayerIndex = 0;
 
 		playerInTurn = Manager.getPlayer(game.playerIDs[game.nextPlayerIndex]);
 		console.log(game);
