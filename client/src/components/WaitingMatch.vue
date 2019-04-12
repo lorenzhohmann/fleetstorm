@@ -171,7 +171,7 @@ export default {
 			this.$router.push({
 				name: 'home',
 				params: {
-					error: 'Du hast das Spiel verlassen.'
+					// error: 'Du hast das Spiel verlassen.'
 				}
 			});
 		}

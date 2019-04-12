@@ -20,7 +20,7 @@
 		<div class="matchfield-button-container mt-3" v-if="game.state == 0">
 			<button
 				v-if="game.state == 0"
-				class="btn btn-danger mr-5"
+				class="btn btn-danger mr-5 btn-mobile-block"
 				v-on:click="leaveGame()"
 			>
 				<i class="fas fa-times mr-3"></i>Spiel verlassen
@@ -29,7 +29,7 @@
 				v-if="game.state == 0"
 				v-bind:disabled="player.ready && false"
 				v-bind:class="{ pulse: !player.ready }"
-				class="btn btn-success mr-1 float-right animated infinite slower"
+				class="btn btn-success mr-1 btn-mobile-block animated infinite slower"
 				v-on:click="readyPlayer()"
 			>
 				<i class="fas fa-check mr-3"></i>Ich bin bereit!
@@ -37,12 +37,12 @@
 			<button
 				v-if="game.state == 0"
 				v-bind:disabled="player.ready"
-				class="btn btn-primary mr-1 float-right"
+				class="btn btn-primary mr-1 btn-mobile-block"
 				v-on:click="positionShipsRandomly(player)"
 			>
 				<i class="fas fa-random mr-3"></i>Schiffe zufällig anordnen
 			</button>
-			<p class="small float-right mt-2" v-if="player.ready">
+			<p class="small mt-2" v-if="player.ready">
 				Das Spiel startet automatisch, sobald alle Spieler bereit sind.
 			</p>
 		</div>
@@ -313,3 +313,8 @@ export default {
 	}
 };
 </script>
+<style>
+.matchfield-button-container {
+	padding-bottom: 2rem;
+}
+</style>

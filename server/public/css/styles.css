@@ -83,11 +83,15 @@ h2 {
 }
 
 h3 {
-	padding: 10px 25px;
+	padding: 10px 15px;
 	font-size: 22px;
-	color: #fff;
+	margin-bottom: 1rem;
 
-	background-color: rgba(8, 98, 138, 0.8);
+	color: #08628a;
+	border-bottom: 3px solid #08628a;
+	background-color: transparent;
+
+	/*background-color: rgba(8, 98, 138, 0.8);*/
 
 	/*background: -moz-linear-gradient(
 		left,

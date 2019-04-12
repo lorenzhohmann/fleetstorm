@@ -21,11 +21,18 @@
 				</div>
 			</div>
 			<button
-				class="btn btn-success"
+				class="btn btn-success mr-1"
 				v-bind:disabled="username == '' || gameCode == ''"
 				v-on:click="enterGame(gameCode)"
 			>
 				<i class="fas fa-play mr-3"></i>Spiel beitreten
+			</button>
+			<button
+				class="btn btn-primary"
+				title="Spiele nachladen"
+				v-on:click="reload()"
+			>
+				<i class="fas fa-sync-alt"></i>
 			</button>
 			<div class="alert alert-danger mt-3" v-if="error">{{ error }}</div>
 
@@ -109,15 +116,18 @@ export default {
 		getStatus(game) {
 			switch (game.state) {
 				case 0:
-					return 'Warten';
+					return 'Warten auf Spieler...';
 					break;
 				case 1:
-					return 'Läuft';
+					return 'Schlacht läuft';
 					break;
 				case 2:
-					return 'Endet';
+					return 'Beendet';
 					break;
 			}
+		},
+		async reload() {
+			this.games = await GameService.getGames();
 		},
 		async enterGame(gameCode) {
 			// validate username

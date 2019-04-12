@@ -11,6 +11,7 @@ Vue.use(
 	new VueSocketIO({
 		debug: true,
 		connection: 'https://battleship.lorenzhohmann.de',
+		// connection: 'http://localhost:3000',
 		vuex: {
 			store,
 			actionPrefix: 'SOCKET_',
