@@ -10,7 +10,7 @@ Vue.config.productionTip = false;
 Vue.use(
 	new VueSocketIO({
 		debug: true,
-		connection: process.env.SOCKET_URL || 'http://localhost:3000',
+		connection: 'http://localhost',
 		vuex: {
 			store,
 			actionPrefix: 'SOCKET_',
