@@ -10,7 +10,7 @@ Vue.config.productionTip = false;
 Vue.use(
 	new VueSocketIO({
 		debug: true,
-		connection: process.env.SOCKET_URL,
+		connection: 'https://battleship.lorenzhohmann.de',
 		vuex: {
 			store,
 			actionPrefix: 'SOCKET_',
