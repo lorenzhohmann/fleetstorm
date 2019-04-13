@@ -63,7 +63,7 @@ router.post('/game/:gameCode/removePlayer/:playerID', (req, res) => {
 		});
 		return;
 	}
-
+	console.log(game);
 	game.removePlayer(playerID);
 	res.status(200).send(game);
 });

@@ -35,7 +35,7 @@ export default {
 				this.game = game;
 				this.player = this.$store.state.player;
 
-				if (!game || !player) {
+				if (!this.game || !this.player) {
 					this.$router.push({
 						name: 'home',
 						params: {

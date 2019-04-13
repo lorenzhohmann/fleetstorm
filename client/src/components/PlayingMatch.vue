@@ -1,17 +1,6 @@
 <template>
 	<div>
 		<div
-			class="alert"
-			v-bind:class="{
-				'alert-info': message.state == 'info',
-				'alert-danger': message.state == 'danger',
-				'alert-success': message.state == 'success',
-				'alert-warning': message.state == 'warning'
-			}"
-			v-if="message.show"
-			v-html="message.msg"
-		></div>
-		<div
 			class="choose-player-container section"
 			v-if="myTurn && !entity.id && !ended"
 		>
@@ -124,6 +113,18 @@
 				</button>
 			</div>
 		</div>
+
+		<div
+			class="alert"
+			v-bind:class="{
+				'alert-info': message.state == 'info',
+				'alert-danger': message.state == 'danger',
+				'alert-success': message.state == 'success',
+				'alert-warning': message.state == 'warning'
+			}"
+			v-if="message.show"
+			v-html="message.msg"
+		></div>
 	</div>
 </template>
 

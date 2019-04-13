@@ -13,6 +13,50 @@
 				<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
 				<p v-if="game.playerIDs.length"><b>Spielleiter: </b>{{ adminName }}</p>
 				<p v-if="game.playerIDs.length"><b>Spieler: </b>{{ ingamePlayers }}</p>
+
+				<div class="setting-area" v-if="game.playerIDs[0] == player.id">
+					<h3>Einstellungen (Spielleitung)</h3>
+					<div class="form-row">
+						<div class="col-12 col-md-4 mb-3">
+							<label for="minPlayers">Minimale Spieleranzahl</label>
+							<input
+								type="number"
+								class="form-control"
+								id="minPlayers"
+								aria-describedby="emailHelp"
+								placeholder="Minimale Spieleranzahl"
+								v-model="minPlayers"
+								v-on:change="changeGameSetting()"
+								min="2"
+							/>
+						</div>
+						<div class="col-12 col-md-4 mb-3">
+							<label for="maxPlayers">Maximale Spieleranzahl</label>
+							<input
+								type="number"
+								class="form-control"
+								id="maxPlayers"
+								aria-describedby="emailHelp"
+								placeholder="Maximale Spieleranzahl"
+								v-model="maxPlayers"
+								v-on:change="changeGameSetting()"
+								max="8"
+							/>
+						</div>
+						<div class="col-12 col-md-4 mb-3">
+							<label for="maxPlayers">Feldgröße</label>
+							<input
+								type="number"
+								class="form-control"
+								id="fieldsize"
+								aria-describedby="emailHelp"
+								placeholder="Feldgröße"
+								v-model="fieldsize"
+								v-on:change="changeGameSetting()"
+							/>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div class="section">
 				<h3>Strategie vorbereiten</h3>
@@ -36,7 +80,10 @@ export default {
 				playerIDs: []
 			},
 			player: {},
-			ingamePlayers: []
+			ingamePlayers: [],
+			minPlayers: 0,
+			maxPlayers: 0,
+			fieldsize: 0
 		};
 	},
 	components: {
@@ -101,8 +148,13 @@ export default {
 				// get players
 				this.getPlayers();
 
-				// TODO FIND ERROR get admin name
+				// get admin name
 				this.getAdminName();
+
+				// set setting vars
+				this.minPlayers = this.game.minPlayers;
+				this.maxPlayers = this.game.maxPlayers;
+				this.fieldsize = this.game.fieldsize;
 
 				return;
 			})
@@ -123,13 +175,13 @@ export default {
 			const gameCode = this.$route.params.gameCode;
 			GameService.getGame(gameCode).then(async game => {
 				this.game = game;
+
+				// update player list
+				this.getPlayers();
+
+				// update admin name
+				this.getAdminName();
 			});
-
-			// update player list
-			this.getPlayers();
-
-			// update admin name
-			this.getAdminName();
 		}
 	},
 	methods: {
@@ -174,6 +226,37 @@ export default {
 					// error: 'Du hast das Spiel verlassen.'
 				}
 			});
+		},
+		async changeGameSetting() {
+			// validate
+			if (this.minPlayers < 2) {
+				this.minPlayers = 2;
+				return false;
+			}
+
+			// get game to avoid update error
+			this.game = await GameService.getGame(this.game.gameCode);
+
+			// reset ships and ready state when fieldsize is changed
+			if (this.game.fieldsize != this.fieldsize) {
+				for (let i = 0; i < this.game.playerIDs.length; i++) {
+					let pl = await PlayerService.getPlayer(this.game.playerIDs[i]);
+					pl.ready = false;
+					pl.ships = [];
+					PlayerService.updatePlayer(pl);
+				}
+			}
+
+			// set new vars
+			this.game.minPlayers = parseInt(this.minPlayers);
+			this.game.maxPlayers = parseInt(this.maxPlayers);
+			this.game.fieldsize = parseInt(this.fieldsize);
+
+			// update game
+			this.game = await GameService.updateGame(this.game);
+
+			// update game for other players
+			this.$socket.emit('updateGameVars');
 		}
 	}
 };

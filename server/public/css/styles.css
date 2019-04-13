@@ -33,11 +33,11 @@ h1 {
 	text-align: center;
 	position: relative;
 	color: #08628a;
+	text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.7);
 }
 
 .main-headline.homescreen {
 	font-size: 14rem;
-	text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.7);
 }
 
 .container {

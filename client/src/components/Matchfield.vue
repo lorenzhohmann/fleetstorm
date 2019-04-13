@@ -34,7 +34,7 @@
 					<i class="fas fa-sync-alt mr-3"></i>Refresh
 				</button>
 				<button
-					v-bind:disabled="player.ready && false"
+					v-bind:disabled="player.ready"
 					v-bind:class="{ pulse: !player.ready }"
 					class="btn btn-success mr-1 btn-mobile-block animated infinite slower col-12 col-md-3"
 					v-on:click="readyPlayer()"
@@ -51,7 +51,8 @@
 				</button>
 			</div>
 			<p class="small mt-2" v-if="player.ready">
-				Das Spiel startet automatisch, sobald alle Spieler bereit sind.
+				Das Spiel startet automatisch, sobald mehr als
+				{{ game.minPlayers }} Spieler online sind und alle Spieler bereit sind.
 			</p>
 		</div>
 	</div>
@@ -142,6 +143,12 @@ export default {
 			// update game
 			const gameCode = this.$route.params.gameCode;
 			GameService.getGame(gameCode).then(async game => {
+				// refresh vue when fieldsize was changed
+				if (this.game.fieldsize != game.fieldsize) {
+					location.reload();
+					return false;
+				}
+
 				this.game = game;
 			});
 		},
@@ -156,11 +163,9 @@ export default {
 			this.$emit('leave-game');
 		},
 		refreshData() {
-			// update game vars
 			this.$socket.emit('updateGameVars');
 		},
 		positionShips() {
-			// TODO check why ships not saved (sometimes - not every time)
 			// if user has already position ships
 			if (this.player.ships.length) {
 				this.player.ships.forEach(ship => {
@@ -305,15 +310,28 @@ export default {
 		async readyPlayer() {
 			// set ready state
 			this.player.ready = true;
-			console.log(this.player);
 
 			this.player = await PlayerService.updatePlayer(this.player);
 			this.$store.dispatch('setPlayer', this.player);
 
+			// fetch game var new
+			this.game = await GameService.getGame(this.game.gameCode);
+
 			// start game when all players ready
 			// TODO get ready players
+			let readyPlayers = 0;
+
+			for (let i = 0; i < this.game.playerIDs.length; i++) {
+				let pl = await PlayerService.getPlayer(this.game.playerIDs[i]);
+				if (pl.ready) readyPlayers++;
+			}
+
 			const playerIDs = this.game.playerIDs;
-			if (playerIDs.length >= this.game.minPlayers) {
+			// if all players ready and bigger than minplayers
+			if (
+				readyPlayers >= this.game.minPlayers &&
+				readyPlayers == this.game.playerIDs.length
+			) {
 				this.$socket.emit('redirectToPlayingArea', {
 					gameCode: this.gameCode
 				});
