@@ -32,7 +32,7 @@
 				title="Spiele nachladen"
 				v-on:click="reload()"
 			>
-				<i class="fas fa-sync-alt"></i>
+				<i class="fas fa-sync-alt mr-3"></i>Refresh
 			</button>
 			<div class="alert alert-danger mt-3" v-if="error">{{ error }}</div>
 

@@ -1,5 +1,8 @@
 <template>
 	<div>
+		<h1 class="main-headline">
+			Battleship
+		</h1>
 		<router-view />
 		<router-link class="btn btn-secondary" to="/"
 			><i class="fas fa-arrow-left pr-2"></i> Zurück</router-link

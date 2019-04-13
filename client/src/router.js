@@ -8,6 +8,10 @@ import EnterGame from './components/EnterGame.vue';
 import Match from './components/Match.vue';
 import WaitingMatch from './components/WaitingMatch.vue';
 import PlayingMatch from './components/PlayingMatch.vue';
+import EndingMatch from './components/EndingMatch.vue';
+
+import Imprint from './components/Imprint.vue';
+import Privacy from './components/Privacy.vue';
 
 Vue.use(Router);
 
@@ -19,6 +23,16 @@ export default new Router({
       path: '/',
       name: 'home',
       component: Home
+    },
+    {
+      path: '/imprint',
+      name: 'imprint',
+      component: Imprint
+    },
+    {
+      path: '/privacy',
+      name: 'privacy',
+      component: Privacy
     },
     {
       path: '/match/:gameCode',
@@ -35,6 +49,10 @@ export default new Router({
         {
           path: 'playing',
           component: PlayingMatch
+        },
+        {
+          path: 'ending',
+          component: EndingMatch
         }
       ]
     },

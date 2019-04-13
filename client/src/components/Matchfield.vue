@@ -17,31 +17,39 @@
 			</tr>
 		</table>
 
-		<div class="matchfield-button-container mt-3" v-if="game.state == 0">
-			<button
-				v-if="game.state == 0"
-				class="btn btn-danger mr-5 btn-mobile-block"
-				v-on:click="leaveGame()"
-			>
-				<i class="fas fa-times mr-3"></i>Spiel verlassen
-			</button>
-			<button
-				v-if="game.state == 0"
-				v-bind:disabled="player.ready && false"
-				v-bind:class="{ pulse: !player.ready }"
-				class="btn btn-success mr-1 btn-mobile-block animated infinite slower"
-				v-on:click="readyPlayer()"
-			>
-				<i class="fas fa-check mr-3"></i>Ich bin bereit!
-			</button>
-			<button
-				v-if="game.state == 0"
-				v-bind:disabled="player.ready"
-				class="btn btn-primary mr-1 btn-mobile-block"
-				v-on:click="positionShipsRandomly(player)"
-			>
-				<i class="fas fa-random mr-3"></i>Schiffe zufällig anordnen
-			</button>
+		<div class="matchfield-button-container mt-3 px-3" v-if="game.state == 0">
+			<div class="row">
+				<button
+					v-bind:disabled="player.ready"
+					class="btn btn-primary mr-3 btn-mobile-block col-12 col-md-4"
+					v-on:click="positionShipsRandomly(player)"
+				>
+					<i class="fas fa-random mr-3"></i>Schiffe zufällig anordnen
+				</button>
+				<button
+					class="btn btn-primary mr-3 col-12 col-md-2"
+					title="Spieldaten aktualisieren"
+					v-on:click="refreshData()"
+				>
+					<i class="fas fa-sync-alt mr-3"></i>Refresh
+				</button>
+				<button
+					v-bind:disabled="player.ready && false"
+					v-bind:class="{ pulse: !player.ready }"
+					class="btn btn-success mr-1 btn-mobile-block animated infinite slower col-12 col-md-3"
+					v-on:click="readyPlayer()"
+				>
+					<i class="fas fa-check mr-3"></i>Ich bin bereit!
+				</button>
+			</div>
+			<div class="row mt-5">
+				<button
+					class="btn btn-secondary mr-5 btn-mobile-block col-12 col-md-3"
+					v-on:click="leaveGame()"
+				>
+					<i class="fas fa-times mr-3"></i>Spiel verlassen
+				</button>
+			</div>
 			<p class="small mt-2" v-if="player.ready">
 				Das Spiel startet automatisch, sobald alle Spieler bereit sind.
 			</p>
@@ -146,6 +154,10 @@ export default {
 	methods: {
 		leaveGame() {
 			this.$emit('leave-game');
+		},
+		refreshData() {
+			// update game vars
+			this.$socket.emit('updateGameVars');
 		},
 		positionShips() {
 			// TODO check why ships not saved (sometimes - not every time)

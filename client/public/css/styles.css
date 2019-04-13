@@ -35,16 +35,13 @@ h1 {
 	color: #08628a;
 }
 
-.main-headline .small {
-	position: absolute;
-	bottom: 0;
-	left: 6.5rem;
-	font-size: 2rem;
-	color: #949494;
+.main-headline.homescreen {
+	font-size: 14rem;
+	text-shadow: 5px 5px 5px rgba(0, 0, 0, 0.7);
 }
 
 .container {
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 0.3);
 	min-height: 70vh;
 	padding: 3rem 6rem;
 
@@ -75,7 +72,13 @@ h2 {
 	font-size: 3rem;
 	margin-top: 2rem;
 	padding-top: 2rem;
-	border-top: 2px solid #08628a;
+	/*border-top: 2px solid #08628a;*/
+}
+
+h4 {
+	font-size: 1.3rem;
+	color: #08628a;
+	margin-top: 2rem;
 }
 
 .mt-10 {
@@ -86,6 +89,7 @@ h3 {
 	padding: 10px 15px;
 	font-size: 22px;
 	margin-bottom: 1rem;
+	/*font-weight: 800;*/
 
 	color: #08628a;
 	border-bottom: 3px solid #08628a;

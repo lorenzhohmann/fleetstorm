@@ -31,6 +31,56 @@
 			<h3>
 				Gebiet von <b>{{ entity.username }}</b>
 			</h3>
+			<div class="ship-info-container mb-3">
+				<p>
+					Flotte von <b>{{ entity.username }}</b>
+				</p>
+				<div
+					class="ship"
+					v-bind:class="{
+						completed: sunkShips.filter(s => s.length === 2).length
+					}"
+				>
+					<div></div>
+					<div></div>
+				</div>
+
+				<div
+					class="ship"
+					v-bind:class="{
+						completed: sunkShips.filter(s => s.length === 3).length
+					}"
+				>
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>
+
+				<div
+					class="ship"
+					v-bind:class="{
+						completed: sunkShips.filter(s => s.length === 4).length
+					}"
+				>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>
+
+				<div
+					class="ship"
+					v-bind:class="{
+						completed: sunkShips.filter(s => s.length === 5).length
+					}"
+				>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+					<div></div>
+				</div>
+			</div>
 			<table class="matchfield">
 				<tr v-for="y in game.fieldsize" v-bind:key="y">
 					<td
@@ -64,7 +114,10 @@
 				</div>
 				Einen Moment, Soldat..!
 			</h3>
-			<div class="admin-container" v-if="player.id == game.playerIDs[0]">
+			<div
+				class="admin-container"
+				v-if="player.id == game.playerIDs[0] && reloadGameButton"
+			>
 				<p></p>
 				<button class="btn btn-primary" v-on:click="reloadGame()">
 					Spiel nachladen
@@ -78,8 +131,6 @@
 import GameService from '@/services/GameService.js';
 import PlayerService from '@/services/PlayerService.js';
 
-// TODO: SPIEL HÄNGT FÜR ALLE ANZEIGEN NACH 5 SEKUNDEN => BEI KLICK MSG AN SERVER
-
 export default {
 	name: 'PlayingMatch',
 	data() {
@@ -92,6 +143,7 @@ export default {
 			gameCode: '',
 			inRound: false,
 			ended: false,
+			sunkShips: [],
 			message: {
 				show: false,
 				msg: '',
@@ -101,7 +153,8 @@ export default {
 			shooted: false,
 			playerInTurn: {},
 			otherPlayers: [],
-			entity: {}
+			entity: {},
+			reloadGameButton: false
 		};
 	},
 	async created() {
@@ -129,6 +182,11 @@ export default {
 				}
 			});
 		}
+
+		// show refresh button after 10 seconds
+		setTimeout(() => {
+			this.reloadGameButton = true;
+		}, 10000);
 	},
 	methods: {
 		fillFields() {
@@ -226,6 +284,11 @@ export default {
 							'success'
 						);
 
+						this.sunkShips.push({
+							id: ship.id,
+							length: ship.length
+						});
+
 						// send message to entity
 						this.$socket.emit('hit', {
 							gameCode: this.game.gameCode,
@@ -247,22 +310,22 @@ export default {
 					type: 'winner'
 				});
 				this.showMessage(
-					`Glückwunsch, Solat! Du hast die Schlach gewonnen!`,
+					`Glückwunsch, Soldat! Du hast die Schlacht gewonnen!`,
 					'success'
 				);
+
+				// set winner to game
+				this.game.winner = this.player;
 
 				this.game.state = 2;
 				this.game = await GameService.updateGame(this.game);
 
-				// redirect to home after 5 seconds
+				// redirect to home screen
 				setTimeout(() => {
-					this.$router.push({
-						name: 'home',
-						params: {
-							error: 'Das Spiel ist vorbei!'
-						}
-					});
-				}, 5000);
+					this.$router.push(`/match/${this.game.gameCode}/ending`);
+				}, 3000);
+
+				// TODO for ranking
 				// this.$socket.emit('deadPlayer', {gameCode: this.gameCode, loser: this.entity});
 			}
 
@@ -280,6 +343,9 @@ export default {
 
 			this.fillFields();
 
+			// reset sunken ships => set new in this method
+			this.sunkShips = [];
+
 			// set hits
 			this.entity.hits.forEach(hit => {
 				let field = this.getField(hit.x, hit.y);
@@ -291,22 +357,26 @@ export default {
 						field.shipHit = true;
 
 						// TODO only when ship is completely hitted
-						// let shipHits = 0;
-						// this.entity.ships.forEach(s => {
-						// 	if (s.id === ship.id) {
-						// 		let f = this.getField(s.x, s.y);
+						let shipHits = 0;
+						this.entity.ships.forEach(s => {
+							if (s.id === ship.id) {
+								let f = this.getField(s.x, s.y);
 
-						// 		if (f.hit) shipHits++;
-						// 	}
-						// });
+								if (f.hit) shipHits++;
+							}
+						});
 
-						// // if ship is hitted completely
-						// if (shipHits === ship.length) {
-						// 	field.hasShip = true;
-						// 	field.start = ship.start;
-						// 	field.end = ship.end;
-						// 	field.orientation = ship.orientation;
-						// }
+						// if ship is hitted completely
+						if (shipHits === ship.length) {
+							// field.hasShip = true;
+							// field.start = ship.start;
+							// field.end = ship.end;
+							// field.orientation = ship.orientation;
+							this.sunkShips.push({
+								id: ship.id,
+								length: ship.length
+							});
+						}
 					}
 				});
 			});
@@ -325,10 +395,15 @@ export default {
 				resolve();
 			});
 		},
-		showMessage(msg, state = 'info') {
+		showMessage(msg, state = 'info', hide = 5) {
 			this.message.msg = msg;
 			this.message.state = state;
 			this.message.show = true;
+
+			clearTimeout(this.message.timeout);
+			this.message.timeout = setTimeout(() => {
+				this.hideMessage();
+			}, 5 * 1000);
 		},
 		hideMessage() {
 			this.message.show = false;
@@ -368,7 +443,6 @@ export default {
 				if (data.playerInTurn.id === this.player.id) {
 					// own turn
 					this.myTurn = true;
-					console.log('my turn');
 
 					// if two players => choose entity directly
 					if (this.game.playerIDs.length === 2) {
@@ -378,7 +452,6 @@ export default {
 					// others turn
 					this.myTurn = false;
 					this.playerInTurn = data.playerInTurn;
-					console.log('not my turn');
 				}
 			}
 		},
@@ -407,10 +480,11 @@ export default {
 						break;
 					case 'winner':
 						this.ended = true;
-						this.showMessage(
-							`<b>${data.attacker.username}</b> hat die Schlacht gewonnen!`,
-							'success'
-						);
+						this.showMessage('Der Krieg ist vorbei!', 'success');
+
+						setTimeout(() => {
+							this.$router.push(`/match/${this.game.gameCode}/ending`);
+						}, 3000);
 						break;
 				}
 			}
@@ -418,3 +492,27 @@ export default {
 	}
 };
 </script>
+<style>
+.ship-info-container {
+	padding: 1rem 2rem;
+	border-radius: 15px;
+	background-color: rgba(255, 255, 255, 0.5);
+	width: 560px;
+	margin: 0 auto;
+}
+.ship-info-container .ship {
+	display: flex;
+	margin: 0.5rem 0;
+}
+.ship-info-container .ship > div {
+	height: 40px;
+	width: 40px;
+	margin: 0;
+	padding: 0;
+	border: 2px solid #08628a;
+	margin: 1px;
+}
+.ship-info-container .ship.completed > div {
+	background-color: #08628a;
+}
+</style>

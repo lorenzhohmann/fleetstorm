@@ -4,7 +4,6 @@ const Player = require('./models/Player');
 
 module.exports = class GameMaster {
 	static startGame(gameCode, io) {
-		console.log('gamemaster for ' + gameCode + ' initialized');
 		const game = Manager.getGame(gameCode);
 
 		if (game.state === 0) {
@@ -14,7 +13,6 @@ module.exports = class GameMaster {
 		}
 	}
 	static nextPlayer(gameCode, io) {
-		console.log('next player in ' + gameCode);
 		const game = Manager.getGame(gameCode);
 
 		// get next player id
@@ -22,12 +20,9 @@ module.exports = class GameMaster {
 		game.nextPlayerIndex++;
 
 		// set 0 if end of array
-		if (game.nextPlayerIndex >= game.playerIDs.length)
-			game.nextPlayerIndex = 0;
+		if (game.nextPlayerIndex >= game.playerIDs.length) game.nextPlayerIndex = 0;
 
 		playerInTurn = Manager.getPlayer(game.playerIDs[game.nextPlayerIndex]);
-		console.log(game);
-		console.log(playerInTurn);
 
 		// emit to frontend
 		setTimeout(() => {
