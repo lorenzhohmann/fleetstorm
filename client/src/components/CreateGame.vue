@@ -46,12 +46,21 @@ export default {
 	},
 	methods: {
 		async createGame() {
-			// TODO check if gameCode already exists
+			// trim username and gameCode
+			this.username = this.username.trim();
+			this.gameCode = this.gameCode.trim();
 
 			// validate username
 			if (!PlayerService.validateUsername(this.username)) {
 				this.error =
 					'Der Benutzername darf nur aus Ziffern, Großbuchstaben und Kleinbuchstaben bestehen und muss eine Länge zwischen drei und zehn Zeichen haben.';
+				return;
+			}
+
+			// validate gameCode
+			if (!GameService.validateGameCode(this.gameCode)) {
+				this.error =
+					'Der Spiel-Code darf nur aus Groß- und Kleinbuchstaben bestehen und muss zwischen 3 und zehn Zeichen haben.';
 				return;
 			}
 

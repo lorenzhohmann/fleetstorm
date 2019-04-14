@@ -32,8 +32,8 @@ io.on('connection', function(socket) {
 	});
 
 	// sockets for playing game
-	socket.on('hit', data => {
-		io.emit('hit', data);
+	socket.on('playingUpdate', data => {
+		io.emit('playingUpdate', data);
 	});
 
 	// sockets for gamemaster

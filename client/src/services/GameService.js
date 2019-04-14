@@ -28,5 +28,8 @@ export default {
 	},
 	updateGame(game) {
 		return axios.put(url, { game }).then(response => response.data);
+	},
+	validateGameCode(gameCode) {
+		return gameCode.match(/^[A-Za-z]{3,10}$/g);
 	}
 };

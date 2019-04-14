@@ -7,8 +7,8 @@
 			<h3>Wähle einen Spieler den du angreifen möchtest</h3>
 			<div class="entity-box">
 				<button
-					class="btn btn-primary mr-1"
-					v-on:click="entityChanged(player)"
+					class="btn btn-primary mr-1 mb-1"
+					v-on:click="changeEntity(player)"
 					v-for="player in otherPlayers"
 					v-bind:key="player.id"
 				>
@@ -16,86 +16,39 @@
 				</button>
 			</div>
 		</div>
+
 		<div class="choose-player-container section" v-if="entity.id && !ended">
 			<h3>
 				Gebiet von <b>{{ entity.username }}</b>
 			</h3>
-			<div class="ship-info-container mb-3">
-				<p>
-					Flotte von <b>{{ entity.username }}</b>
-				</p>
-				<div
-					class="ship"
-					v-bind:class="{
-						completed: sunkShips.filter(s => s.length === 2).length
-					}"
-				>
-					<div></div>
-					<div></div>
-				</div>
+			<ShipInfoComponent v-bind:sunkShips="sunkShips" />
+			<Field v-bind:game="game" v-bind:allowShoot="true" />
 
-				<div
-					class="ship"
-					v-bind:class="{
-						completed: sunkShips.filter(s => s.length === 3).length
-					}"
-				>
-					<div></div>
-					<div></div>
-					<div></div>
-				</div>
-
-				<div
-					class="ship"
-					v-bind:class="{
-						completed: sunkShips.filter(s => s.length === 4).length
-					}"
-				>
-					<div></div>
-					<div></div>
-					<div></div>
-					<div></div>
-				</div>
-
-				<div
-					class="ship"
-					v-bind:class="{
-						completed: sunkShips.filter(s => s.length === 5).length
-					}"
-				>
-					<div></div>
-					<div></div>
-					<div></div>
-					<div></div>
-					<div></div>
-				</div>
-			</div>
-			<table class="matchfield">
-				<tr v-for="y in game.fieldsize" v-bind:key="y">
-					<td
-						v-on:click="shoot(x - 1, y - 1)"
-						v-if="getField(x - 1, y - 1)"
-						v-for="x in game.fieldsize"
-						v-bind:key="x"
-						v-bind:class="{
-							hasShip: getField(x - 1, y - 1).ship,
-							end: getField(x - 1, y - 1).end,
-							start: getField(x - 1, y - 1).start,
-							hit: getField(x - 1, y - 1).hit,
-							shipHit: getField(x - 1, y - 1).shipHit,
-							hasShip: getField(x - 1, y - 1).hasShip,
-							x: getField(x - 1, y - 1).orientation == 'x',
-							y: getField(x - 1, y - 1).orientation == 'y'
-						}"
-					></td>
-				</tr>
-			</table>
+			<button
+				class="btn btn-secondary mt-5 btn-mobile-block"
+				v-if="game.playerIDs.length > 2"
+				v-on:click="showChangeEntity()"
+			>
+				Anderen Gegner wählen
+			</button>
 		</div>
-		<div class="choose-player-container section" v-if="!myTurn && !ended">
-			<h3 v-if="inRound">
+
+		<div
+			class="choose-player-container section"
+			v-if="!myTurn && !ended && inRound"
+		>
+			<h3>
 				<b>{{ playerInTurn.username }}</b> ist am Zug
 			</h3>
+			<div class="spectator-field">
+				<h3 class="mt-5">
+					Deine Flotte:
+				</h3>
+				<ShipInfoComponent v-bind:sunkShips="sunkShips" />
+				<Field v-bind:game="game" v-bind:allowShoot="false" />
+			</div>
 		</div>
+
 		<div class="game-is-sick" v-if="!inRound && !entity.id">
 			<h3>
 				<div class="spinner-grow text-light" role="status">
@@ -115,7 +68,7 @@
 		</div>
 
 		<div
-			class="alert"
+			class="alert mt-2"
 			v-bind:class="{
 				'alert-info': message.state == 'info',
 				'alert-danger': message.state == 'danger',
@@ -132,12 +85,20 @@
 import GameService from '@/services/GameService.js';
 import PlayerService from '@/services/PlayerService.js';
 
+import ShipInfoComponent from '@/components/match/ShipInfoComponent.vue';
+import Field from '@/components/match/Field.vue';
+
 export default {
 	name: 'PlayingMatch',
+	components: {
+		ShipInfoComponent,
+		Field
+	},
 	data() {
 		return {
 			game: {
-				playerIDs: []
+				playerIDs: [],
+				currentEntity: {}
 			},
 			fields: [],
 			player: {},
@@ -187,7 +148,8 @@ export default {
 		// show refresh button after 10 seconds
 		setTimeout(() => {
 			this.reloadGameButton = true;
-		}, 10000);
+		}, 1000);
+		//TODO CHANGE
 	},
 	methods: {
 		fillFields() {
@@ -203,10 +165,57 @@ export default {
 					});
 				}
 			}
+		},
+		fillOwnFields() {
+			this.fillFields();
 
-			// set ship attributes
-			this.entity.ships.forEach(ship => {
+			// set own hits
+			this.sunkShips = [];
+
+			this.setHits(this.player);
+
+			// set ships (visible)
+			this.player.ships.forEach(ship => {
 				let field = this.getField(ship.x, ship.y);
+				field.ship = true;
+				field.end = ship.end;
+				field.start = ship.start;
+				field.orientation = ship.orientation;
+				field.special = ship.special;
+			});
+		},
+		setHits(player) {
+			player.hits.forEach(hit => {
+				let field = this.getField(hit.x, hit.y);
+				field.hit = true;
+
+				// if hit is ship hit
+				player.ships.forEach(ship => {
+					if (ship.x === hit.x && ship.y === hit.y) {
+						field.shipHit = true;
+
+						let shipHits = 0;
+						player.ships.forEach(s => {
+							if (s.id === ship.id) {
+								let f = this.getField(s.x, s.y);
+
+								if (f.hit) shipHits++;
+							}
+						});
+
+						// if ship is hitted completely
+						if (shipHits === ship.length) {
+							// field.hasShip = true;
+							// field.start = ship.start;
+							// field.end = ship.end;
+							// field.orientation = ship.orientation;
+							this.sunkShips.push({
+								id: ship.id,
+								length: ship.length
+							});
+						}
+					}
+				});
 			});
 		},
 		async shoot(x, y) {
@@ -258,11 +267,11 @@ export default {
 					this.shooted = false;
 
 					// send message to entity
-					this.$socket.emit('hit', {
+					this.$socket.emit('playingUpdate', {
 						gameCode: this.game.gameCode,
 						attacker: this.player,
 						entity: this.entity,
-						type: 'normal'
+						type: 'hit'
 					});
 
 					// check if ship is completed
@@ -291,7 +300,7 @@ export default {
 						});
 
 						// send message to entity
-						this.$socket.emit('hit', {
+						this.$socket.emit('playingUpdate', {
 							gameCode: this.game.gameCode,
 							attacker: this.player,
 							entity: this.entity,
@@ -305,7 +314,7 @@ export default {
 			const hittedShipParts = this.entity.ships.filter(ship => ship.hit);
 			let shipPartsSunk = hittedShipParts.length;
 			if (shipPartsSunk === this.entity.ships.length && shipPartsSunk > 0) {
-				this.$socket.emit('hit', {
+				this.$socket.emit('playingUpdate', {
 					gameCode: this.game.gameCode,
 					attacker: this.player,
 					type: 'winner'
@@ -339,48 +348,29 @@ export default {
 				this.$socket.emit('nextPlayer', { gameCode: this.gameCode });
 			}
 		},
-		entityChanged(entity) {
+		showChangeEntity() {
+			this.entity = {};
+		},
+		async changeEntity(entity) {
 			this.entity = entity;
 
+			// get current game to avoid update problems
+			this.game = await GameService.getGame(this.game.gameCode);
+
+			// update current game
+			this.game.currentEntity = entity;
+
+			// update game
+			this.game = await GameService.updateGame(this.game);
+
+			// fill fields with current fieldsize
 			this.fillFields();
 
 			// reset sunken ships => set new in this method
 			this.sunkShips = [];
 
 			// set hits
-			this.entity.hits.forEach(hit => {
-				let field = this.getField(hit.x, hit.y);
-				field.hit = true;
-
-				// if hit is ship hit
-				this.entity.ships.forEach(ship => {
-					if (ship.x === hit.x && ship.y === hit.y) {
-						field.shipHit = true;
-
-						// TODO only when ship is completely hitted
-						let shipHits = 0;
-						this.entity.ships.forEach(s => {
-							if (s.id === ship.id) {
-								let f = this.getField(s.x, s.y);
-
-								if (f.hit) shipHits++;
-							}
-						});
-
-						// if ship is hitted completely
-						if (shipHits === ship.length) {
-							// field.hasShip = true;
-							// field.start = ship.start;
-							// field.end = ship.end;
-							// field.orientation = ship.orientation;
-							this.sunkShips.push({
-								id: ship.id,
-								length: ship.length
-							});
-						}
-					}
-				});
-			});
+			this.setHits(this.entity);
 		},
 		async startupCheck() {
 			return new Promise((resolve, reject) => {
@@ -418,7 +408,7 @@ export default {
 		}
 	},
 	sockets: {
-		nextPlayer: function(data) {
+		nextPlayer: async function(data) {
 			// if emit is for current game
 			if (this.game.gameCode == data.gameCode) {
 				// TODO ERROR HANDLING OR REDIRECT TO END PAGE
@@ -435,7 +425,13 @@ export default {
 				const gameCode = this.$route.params.gameCode;
 				GameService.getGame(gameCode).then(async game => {
 					this.game = game;
+					this.game.currentEntity = {};
 				});
+
+				// update player obj
+				this.player = await PlayerService.getPlayer(
+					this.$store.state.player.id
+				);
 
 				// set new socket vars
 				this.otherPlayers = data.otherPlayers;
@@ -447,23 +443,26 @@ export default {
 
 					// if two players => choose entity directly
 					if (this.game.playerIDs.length === 2) {
-						this.entityChanged(this.otherPlayers[0]);
+						this.changeEntity(this.otherPlayers[0]);
 					}
 				} else {
 					// others turn
 					this.myTurn = false;
 					this.playerInTurn = data.playerInTurn;
+
+					// fill own field
+					this.fillOwnFields();
 				}
 			}
 		},
-		hit: function(data) {
+		playingUpdate: async function(data) {
 			// if emit is for current game
 			if (this.game.gameCode == data.gameCode) {
 				// dont show message when player is current player
 				if (this.player.id == data.attacker.id) return false;
 
 				switch (data.type) {
-					case 'normal':
+					case 'hit':
 						this.showMessage(
 							`<b>${data.attacker.username}</b> hat ein Schiff von <b>${
 								data.entity.username
@@ -478,6 +477,11 @@ export default {
 							}</b> versenkt!`,
 							'info'
 						);
+						break;
+					case 'updateSpectatorView':
+						this.game = await GameService.getGame(this.game.gameCode);
+
+						console.log(data);
 						break;
 					case 'winner':
 						this.ended = true;
