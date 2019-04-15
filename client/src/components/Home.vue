@@ -12,9 +12,7 @@
 					>{{ runningGames }}</span
 				></router-link
 			>
-			<router-link
-				class="btn btn-info btn-block btn-lg disabled"
-				to="instruction"
+			<router-link class="btn btn-primary btn-block btn-lg" to="instruction"
 				><i class="fas fa-chalkboard-teacher mr-3"></i>Anleitung</router-link
 			>
 			<router-link class="btn btn-secondary btn-block mt-5" to="imprint"

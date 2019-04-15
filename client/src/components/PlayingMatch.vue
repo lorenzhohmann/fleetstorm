@@ -20,12 +20,18 @@
 		</div>
 
 		<div class="dead-player-container" v-if="player.dead">
-			<h3>Deine Flotte ist komplett zerstört!</h3>
+			<h3>Game Over! Deine Flotte wurde komplett zerstört!</h3>
+			<p>
+				Du kannst noch weiter in diesem Spiel bleiben und bekommst weiterhin
+				Benachrichtungen, um den Spielverlauf nachvollziehen zu können!
+			</p>
 
-			<!-- TODO -->
-			<router-link class="btn btn-success btn-block" to="/"
-				><i class="fas fa-home mr-3"></i>Zurück zum Homescreen</router-link
+			<button
+				class="btn btn-success btn-lg btn-block mb-5"
+				v-on:click="leaveGame()"
 			>
+				<i class="fas fa-home mr-3"></i>Zum Homescreen
+			</button>
 		</div>
 
 		<div class="choose-player-container section" v-if="entity.id && !ended">
@@ -55,7 +61,7 @@
 			<h3>
 				<b>{{ playerInTurn.username }}</b> ist am Zug
 			</h3>
-			<div class="spectator-field">
+			<div class="spectator-field" v-if="!player.dead">
 				<ShipInfoComponent
 					v-bind:sunkShips="sunkShips"
 					v-bind:player="player"
@@ -338,10 +344,13 @@ export default {
 				);
 
 				// check if last player alive
-				const lastPlayerAlive = await this.isLastPlayerAlive(this.player);
-				console.log('last player alive:' + lastPlayerAlive);
-				if (lastPlayerAlive) {
-					console.log('last player alive');
+				const alivePlayerIDs = await GameService.getAlivePlayers(
+					this.game.gameCode
+				);
+				if (
+					alivePlayerIDs.length === 1 &&
+					alivePlayerIDs[0] == this.player.id
+				) {
 					// tell other players
 					this.$socket.emit('playingUpdate', {
 						gameCode: this.game.gameCode,
@@ -378,17 +387,6 @@ export default {
 				this.inRound = false;
 				this.$socket.emit('nextPlayer', { gameCode: this.gameCode });
 			}
-		},
-		async isLastPlayerAlive(player) {
-			return new Promise((resolve, reject) => {
-				const alivePlayerIDs = [];
-				this.game.playerIDs.forEach(async playerID => {
-					let pl = await PlayerService.getPlayer(playerID);
-					console.log(pl);
-					if (!pl.dead) alivePlayerIDs.push(pl.id);
-				});
-				resolve(alivePlayerIDs.length === 1 && alivePlayerIDs[0] == player.id);
-			});
 		},
 		showChangeEntity() {
 			this.entity = {};
@@ -456,6 +454,26 @@ export default {
 		reloadGame() {
 			this.$socket.emit('nextPlayer', { gameCode: this.game.gameCode });
 			this.showMessage('Spiel wird nachgeladen!', 'warning');
+		},
+		leaveGame() {
+			// remove player from game
+			GameService.removePlayer(this.game.gameCode, this.player.id);
+
+			// delete player
+			PlayerService.deletePlayer(this.player.id);
+			this.$store.dispatch('setPlayer', null);
+
+			// update socket view
+			this.$socket.emit('playerLeaveGame', {
+				gameCode: this.game.gameCode,
+				player: this.player
+			});
+
+			// redirect to home
+			this.$router.push({
+				name: 'home',
+				params: {}
+			});
 		}
 	},
 	sockets: {

@@ -93,6 +93,28 @@ router.put('/game', (req, res) => {
 	res.status(200).send(game);
 });
 
+router.get('/game/:gameCode/alivePlayers', (req, res) => {
+	const gameCode = req.params.gameCode;
+
+	if (!Manager.gameCodeExists(gameCode)) {
+		res.status(400).send({
+			error: 'Dieses Spiel existiert nicht'
+		});
+		return;
+	}
+
+	const game = Manager.getGame(gameCode);
+
+	const alivePlayerIDs = [];
+
+	game.playerIDs.forEach(playerID => {
+		let player = Manager.getPlayer(playerID);
+		if (!player.dead) alivePlayerIDs.push(player.id);
+	});
+
+	res.status(200).send(alivePlayerIDs);
+});
+
 router.delete('/game/:gameCode', (req, res) => {
 	const gameCode = req.params.gameCode;
 

@@ -295,8 +295,6 @@ export default {
 			this.adminName = admin.username;
 		},
 		leaveGame() {
-			// TODO check function
-
 			// remove player from game
 			GameService.removePlayer(this.game.gameCode, this.player.id);
 

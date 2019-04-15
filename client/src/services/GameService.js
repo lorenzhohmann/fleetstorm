@@ -31,5 +31,10 @@ export default {
 	},
 	validateGameCode(gameCode) {
 		return gameCode.match(/^[A-Za-z]{3,10}$/g);
+	},
+	getAlivePlayers(gameCode) {
+		return axios
+			.get(`${url}/${gameCode}/alivePlayers`)
+			.then(response => response.data);
 	}
 };
