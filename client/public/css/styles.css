@@ -132,7 +132,7 @@ h3 {
 }
 .matchfield td,
 .matchfield th {
-	border: 1px solid rgba(255, 255, 255, 0.1);
+	/*border: 1px solid rgba(255, 255, 255, 0.1);*/
 	text-align: center;
 }
 .matchfield th {
@@ -174,8 +174,8 @@ h3 {
 	/* background-image: url(../img/bomb.png); */
 	/* background-size: cover; */
 	opacity: 0.6;
-	width: 40%;
-	height: 40%;
+	width: 30%;
+	height: 30%;
 	background-color: red;
 	border-radius: 50%;
 	transform: translate(-50%, -50%);
@@ -185,18 +185,18 @@ h3 {
 }
 @keyframes pulseBomb {
 	0% {
-		width: 40%;
-		height: 40%;
+		width: 30%;
+		height: 30%;
 		opacity: 0.6;
 	}
 	50% {
-		width: 45%;
-		height: 45%;
-		opacity: 0.8;
+		width: 32%;
+		height: 32%;
+		opacity: 0.7;
 	}
 	100% {
-		width: 40%;
-		height: 40%;
+		width: 30%;
+		height: 30%;
 		opacity: 0.6;
 	}
 }
@@ -208,11 +208,11 @@ h3 {
 	top: 50%;
 
 	opacity: 0.6;
-	width: 60%;
-	height: 60%;
+	width: 35%;
+	height: 35%;
 	background-color: transparent;
 	border-radius: 50%;
-	border: 2px solid #062838;
+	/*border: 2px solid #062838;*/
 	transform: translate(-50%, -50%);
 
 	-webkit-animation: pulseBombCircle 1.5s infinite ease-in-out;
@@ -221,21 +221,10 @@ h3 {
 }
 @keyframes pulseBombCircle {
 	0% {
-		width: 60%;
-		height: 60%;
-		opacity: 0.6;
-	}
-	50% {
-		width: 60%;
-		height: 60%;
-		opacity: 0.3;
-		width: 65%;
-		height: 65%;
+		box-shadow: 0 0 0 0px rgba(0, 0, 0, 0.2);
 	}
 	100% {
-		width: 60%;
-		height: 60%;
-		opacity: 0.6;
+		box-shadow: 0 0 0 20px rgba(0, 0, 0, 0);
 	}
 }
 
@@ -244,27 +233,43 @@ h3 {
 	border: none;
 }
 .matchfield td.hasShip {
-	background-image: url(../img/ship.png);
+	background-image: url(../img/ship_middle.png);
 	background-color: transparent;
 	background-position: center;
 	background-size: cover;
 	background-repeat: no-repeat;
 }
-.matchfield td.y {
+
+.matchfield td.hasShip.x {
 	transform: rotate(90deg);
 }
+
 .matchfield td.start.x {
-	background-position: left center;
+	background-image: url(../img/ship_start.png);
+	transform: rotate(90deg);
 }
 .matchfield td.end.x {
-	background-position: left center;
+	background-image: url(../img/ship_start.png);
+	transform: rotate(270deg);
+}
+
+.matchfield td.start.y {
+	background-image: url(../img/ship_start.png);
 	transform: rotate(180deg);
 }
-.matchfield td.start.y {
-	background-position: left center;
-	transform: rotate(90deg);
-}
 .matchfield td.end.y {
-	background-position: left center;
-	transform: rotate(270deg);
+	background-image: url(../img/ship_start.png);
+}
+
+/* TRANSITIONS */
+.fade-enter-active,
+.fade-leave-active {
+	transition-duration: 0.3s;
+	transition-property: opacity;
+	transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+	opacity: 0;
 }

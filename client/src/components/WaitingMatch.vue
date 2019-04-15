@@ -18,39 +18,42 @@
 					<h3>Einstellungen (Spielleitung)</h3>
 					<div class="form-row">
 						<div class="col-12 col-md-4 mb-3">
-							<label for="minPlayers">Minimale Spieleranzahl</label>
+							<label for="minPlayers"
+								>Minimale Spieleranzahl: {{ minPlayers }}</label
+							>
 							<input
-								type="number"
-								class="form-control"
-								id="minPlayers"
-								aria-describedby="emailHelp"
-								placeholder="Minimale Spieleranzahl"
-								v-model="minPlayers"
-								v-on:change="changeGameSetting()"
+								type="range"
+								class="custom-range"
 								min="2"
-							/>
-						</div>
-						<div class="col-12 col-md-4 mb-3">
-							<label for="maxPlayers">Maximale Spieleranzahl</label>
-							<input
-								type="number"
-								class="form-control"
-								id="maxPlayers"
-								aria-describedby="emailHelp"
-								placeholder="Maximale Spieleranzahl"
-								v-model="maxPlayers"
+								id="minPlayers"
+								v-model="minPlayers"
+								v-bind:max="maxPlayers"
 								v-on:change="changeGameSetting()"
-								max="8"
 							/>
 						</div>
 						<div class="col-12 col-md-4 mb-3">
-							<label for="maxPlayers">Feldgröße</label>
+							<label for="maxPlayers"
+								>Maximale Spieleranzahl: {{ maxPlayers }}</label
+							>
 							<input
-								type="number"
-								class="form-control"
+								type="range"
+								class="custom-range"
+								max="24"
+								id="maxPlayers"
+								v-model="maxPlayers"
+								v-bind:min="minPlayers"
+								v-on:change="changeGameSetting()"
+							/>
+						</div>
+						<div class="col-12 col-md-4 mb-3">
+							<label for="maxPlayers">Feldgröße: {{ fieldsize }}</label>
+							<input
+								type="range"
+								class="custom-range"
+								min="6"
+								max="12"
+								step="2"
 								id="fieldsize"
-								aria-describedby="emailHelp"
-								placeholder="Feldgröße"
 								v-model="fieldsize"
 								v-on:change="changeGameSetting()"
 							/>
@@ -89,7 +92,7 @@ export default {
 	components: {
 		Matchfield
 	},
-	created() {
+	async created() {
 		// get gameCode from store (set in Enter or Create Game)
 		const gameCode = this.$route.params.gameCode;
 
@@ -213,7 +216,7 @@ export default {
 			GameService.removePlayer(this.game.gameCode, this.player.id);
 
 			// delete player
-			PlayerService.deletePlayer(this.player.username);
+			PlayerService.deletePlayer(this.player.id);
 			this.$store.dispatch('setPlayer', null);
 
 			// update socket view

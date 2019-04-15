@@ -35,6 +35,8 @@ export default {
 				this.game = game;
 				this.player = this.$store.state.player;
 
+				console.log(this.game);
+
 				if (!this.game || !this.player) {
 					this.$router.push({
 						name: 'home',
@@ -54,11 +56,11 @@ export default {
 				this.winner = this.game.winner;
 
 				// delete player
-				PlayerService.deletePlayer(this.player.username);
+				PlayerService.deletePlayer(this.player.id);
 				this.$store.dispatch('setPlayer', null);
 
-				// delete game
-				GameService.deleteGame(this.game.gameCode);
+				// delete game (TODO in cron or sth like that)
+				// GameService.deleteGame(this.game.gameCode);
 			});
 		} catch (err) {
 			this.$router.push({

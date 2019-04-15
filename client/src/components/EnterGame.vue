@@ -49,24 +49,16 @@
 							<div class="card-body">
 								<h6
 									class="card-subtitle mb-2 text-muted"
-									v-if="game.playerIDs.length && false"
-								>
-									<b>Admin:</b>
-									{{
-										admins.filter(a => a.gameCode === game.gameCode)[0].admin
-									}}
-								</h6>
-								<h6
-									class="card-subtitle mb-2 text-muted"
 									v-if="!game.playerIDs.length"
 								>
 									<b>Admin:</b> Computer
 								</h6>
 								<p class="card-text">
-									<b>Aktuelle Spieleranzahl:</b> [{{ game.playerIDs.length }}/{{
+									<b>Spieler:</b> [{{ game.playerIDs.length }}/{{
 										game.maxPlayers
-									}}]<br />
-									<b>Spielfeld:</b> {{ game.fieldsize }}x{{ game.fieldsize
+									}}]<br /><b>min. Spieleranzahl:</b> {{ game.minPlayers
+									}}<br />
+									<b>Feldgröße:</b> {{ game.fieldsize }}x{{ game.fieldsize
 									}}<br />
 									<b>Status: </b> {{ getStatus(game) }}
 								</p>
@@ -116,7 +108,7 @@ export default {
 		getStatus(game) {
 			switch (game.state) {
 				case 0:
-					return 'Warten auf Spieler...';
+					return 'Warten...';
 					break;
 				case 1:
 					return 'Schlacht läuft';

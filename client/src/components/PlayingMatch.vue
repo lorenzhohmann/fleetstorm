@@ -68,7 +68,7 @@
 		</div>
 
 		<div
-			class="alert mt-2"
+			class="alert mt-2 fixed-bottom mx-5"
 			v-bind:class="{
 				'alert-info': message.state == 'info',
 				'alert-danger': message.state == 'danger',
@@ -394,7 +394,7 @@ export default {
 			clearTimeout(this.message.timeout);
 			this.message.timeout = setTimeout(() => {
 				this.hideMessage();
-			}, 5 * 1000);
+			}, hide * 1000);
 		},
 		hideMessage() {
 			this.message.show = false;

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const url = '/api/player/';
+const url = '/api/player';
 
 export default {
 	createPlayer(username) {
@@ -9,11 +9,11 @@ export default {
 	playerExists(username) {
 		return axios.get(url, { username }).then(response => response.data);
 	},
-	deletePlayer(username) {
-		axios.delete(url, { username });
+	deletePlayer(playerID) {
+		axios.delete(`${url}/${playerID}`);
 	},
 	getPlayer(playerID) {
-		return axios.get(`${url}${playerID}`).then(response => response.data);
+		return axios.get(`${url}/${playerID}`).then(response => response.data);
 	},
 	getPlayers() {
 		return axios.get(url).then(response => response.data);

@@ -54,14 +54,14 @@ export default {
 			if (!PlayerService.validateUsername(this.username)) {
 				this.error =
 					'Der Benutzername darf nur aus Ziffern, Großbuchstaben und Kleinbuchstaben bestehen und muss eine Länge zwischen drei und zehn Zeichen haben.';
-				return;
+				return false;
 			}
 
 			// validate gameCode
 			if (!GameService.validateGameCode(this.gameCode)) {
 				this.error =
 					'Der Spiel-Code darf nur aus Groß- und Kleinbuchstaben bestehen und muss zwischen 3 und zehn Zeichen haben.';
-				return;
+				return false;
 			}
 
 			// create game
@@ -69,7 +69,7 @@ export default {
 				const game = await GameService.createGame(this.gameCode);
 			} catch (err) {
 				this.error = err.response.data.error;
-				return;
+				return false;
 			}
 
 			// create player and redirect to waiting area

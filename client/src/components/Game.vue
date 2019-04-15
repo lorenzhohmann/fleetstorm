@@ -3,7 +3,9 @@
 		<h1 class="main-headline">
 			Battleship
 		</h1>
-		<router-view />
+		<transition name="fade" mode="out-in">
+			<router-view />
+		</transition>
 		<router-link class="btn btn-secondary" to="/"
 			><i class="fas fa-arrow-left pr-2"></i> Zurück</router-link
 		>

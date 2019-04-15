@@ -18,7 +18,7 @@ export default {
 			.then(response => response.data);
 	},
 	deleteGame(gameCode) {
-		axios.delete(url, { gameCode });
+		axios.delete(`${url}/${gameCode}`);
 	},
 	playerIsInGame(player, game) {
 		return game.playerIDs.filter(id => id === player.id).length;

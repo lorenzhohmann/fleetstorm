@@ -25,13 +25,20 @@ module.exports = class Manager {
 	static updateGame(game) {
 		games.forEach((g, index) => {
 			if (g.gameCode === game.gameCode) {
-				games[index] = game;
+				g.maxPlayers = game.maxPlayers;
+				g.minPlayers = game.minPlayers;
+				g.state = game.state;
+				g.playerIDs = game.playerIDs;
+				g.gameCode = game.gameCode;
+				g.fieldsize = game.fieldsize;
+				g.nextPlayerIndex = game.nextPlayerIndex;
+				g.winner = game.winner;
 			}
 		});
 	}
 
 	static usernameExists(username) {
-		return players.filter(p => p.username == username).length >= 1;
+		return players.filter(p => p.username === username).length >= 1;
 	}
 	static getPlayers() {
 		return players;
@@ -39,7 +46,11 @@ module.exports = class Manager {
 	static updatePlayer(player) {
 		players.forEach((p, index) => {
 			if (p.id === player.id) {
-				players[index] = player;
+				p.id = player.id;
+				p.username = player.username;
+				p.ships = player.ships;
+				p.ready = player.ready;
+				p.hits = player.hits;
 			}
 		});
 	}
@@ -51,10 +62,7 @@ module.exports = class Manager {
 	static getPlayer(playerID) {
 		return players.filter(p => p.id === playerID)[0];
 	}
-	static deletePlayer(username) {
-		players = players.filter(p => p.username !== username);
-	}
-	static deleteGame(gameCode) {
-		games = games.filter(g => g.gameCode !== gameCode);
+	static deletePlayer(playerID) {
+		players = players.filter(p => p.id !== playerID);
 	}
 };
