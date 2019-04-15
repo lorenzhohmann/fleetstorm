@@ -10,6 +10,8 @@ import WaitingMatch from './components/WaitingMatch.vue';
 import PlayingMatch from './components/PlayingMatch.vue';
 import EndingMatch from './components/EndingMatch.vue';
 
+import Instruction from './components/Instruction.vue';
+
 import Imprint from './components/Imprint.vue';
 import Privacy from './components/Privacy.vue';
 
@@ -28,6 +30,11 @@ export default new Router({
       path: '/imprint',
       name: 'imprint',
       component: Imprint
+    },
+    {
+      path: '/instruction',
+      name: 'instruction',
+      component: Instruction
     },
     {
       path: '/privacy',

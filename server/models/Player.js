@@ -7,5 +7,6 @@ module.exports = class Player {
 		this.ships = [];
 		this.ready = false;
 		this.hits = [];
+		this.dead = false;
 	}
 };

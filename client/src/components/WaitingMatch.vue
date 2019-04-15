@@ -3,69 +3,107 @@
 		<div class="match-area">
 			<div class="info-container section">
 				<h3>Spielinfos</h3>
-				<p><b>Dein Name:</b> {{ player.username }}</p>
-				<p v-if="game.playerIDs.length">
-					<b>Aktuelle Spieleranzahl: </b>[{{ game.playerIDs.length }}/{{
-						game.maxPlayers
-					}}]
-				</p>
-				<p><b>minimale Spieleranzahl:</b> {{ game.minPlayers }}</p>
-				<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
-				<p v-if="game.playerIDs.length"><b>Spielleiter: </b>{{ adminName }}</p>
-				<p v-if="game.playerIDs.length"><b>Spieler: </b>{{ ingamePlayers }}</p>
-
-				<div class="setting-area" v-if="game.playerIDs[0] == player.id">
-					<h3>Einstellungen (Spielleitung)</h3>
-					<div class="form-row">
-						<div class="col-12 col-md-4 mb-3">
-							<label for="minPlayers"
-								>Minimale Spieleranzahl: {{ minPlayers }}</label
-							>
+				<div class="row">
+					<div class="col-12 col-sm-6">
+						<p><b>Dein Name:</b> {{ player.username }}</p>
+						<p v-if="game.playerIDs.length">
+							<b>Aktuelle Spieleranzahl: </b>[{{ game.playerIDs.length }}/{{
+								game.maxPlayers
+							}}]
+						</p>
+						<p><b>minimale Spieleranzahl:</b> {{ game.minPlayers }}</p>
+					</div>
+					<div class="col-12 col-sm-6">
+						<p><b>Feldgröße: </b>{{ game.fieldsize }}x{{ game.fieldsize }}</p>
+						<p v-if="game.playerIDs.length">
+							<b>Spielleiter: </b>{{ adminName }}
+						</p>
+						<p v-if="game.playerIDs.length" v-html="ingamePlayers"></p>
+					</div>
+				</div>
+			</div>
+			<div class="setting-area section" v-if="game.playerIDs[0] == player.id">
+				<h3>Einstellungen (Spielleitung)</h3>
+				<div class="form-row">
+					<div class="col-12 col-md-6 mb-3">
+						<label for="minPlayers"
+							>Minimale Spieleranzahl: {{ minPlayers }}</label
+						>
+						<input
+							type="range"
+							class="custom-range"
+							min="2"
+							id="minPlayers"
+							v-model="minPlayers"
+							v-bind:max="maxPlayers"
+							v-on:change="changeGameSetting()"
+						/>
+					</div>
+					<div class="col-12 col-md-6 mb-3">
+						<label for="maxPlayers"
+							>Maximale Spieleranzahl: {{ maxPlayers }}</label
+						>
+						<input
+							type="range"
+							class="custom-range"
+							max="12"
+							id="maxPlayers"
+							v-model="maxPlayers"
+							v-bind:min="minPlayers"
+							v-on:change="changeGameSetting()"
+						/>
+					</div>
+					<div class="col-12 col-md-6 mb-3">
+						<label for="maxPlayers">Feldgröße: {{ fieldsize }}</label>
+						<input
+							type="range"
+							class="custom-range"
+							min="6"
+							max="12"
+							step="2"
+							id="fieldsize"
+							v-model="fieldsize"
+							v-on:change="changeGameSetting()"
+						/>
+					</div>
+					<div class="col-12 col-md-6 mb-3">
+						<label for="maxPlayers">Spiel Sichtbarkeit</label>
+						<div class="custom-control custom-switch">
 							<input
-								type="range"
-								class="custom-range"
-								min="2"
-								id="minPlayers"
-								v-model="minPlayers"
-								v-bind:max="maxPlayers"
+								type="checkbox"
+								class="custom-control-input"
+								id="public"
+								v-model="public"
 								v-on:change="changeGameSetting()"
 							/>
+							<label class="custom-control-label" for="public">{{
+								public ? 'Öffentlich' : 'Privat'
+							}}</label>
 						</div>
-						<div class="col-12 col-md-4 mb-3">
-							<label for="maxPlayers"
-								>Maximale Spieleranzahl: {{ maxPlayers }}</label
-							>
-							<input
-								type="range"
-								class="custom-range"
-								max="24"
-								id="maxPlayers"
-								v-model="maxPlayers"
-								v-bind:min="minPlayers"
-								v-on:change="changeGameSetting()"
-							/>
-						</div>
-						<div class="col-12 col-md-4 mb-3">
-							<label for="maxPlayers">Feldgröße: {{ fieldsize }}</label>
-							<input
-								type="range"
-								class="custom-range"
-								min="6"
-								max="12"
-								step="2"
-								id="fieldsize"
-								v-model="fieldsize"
-								v-on:change="changeGameSetting()"
-							/>
-						</div>
+						<small id="emailHelp" class="form-text text-dark"
+							>Wenn das Spiel Privat ist, können Spieler nur über den Spielcode
+							beitreten.</small
+						>
 					</div>
 				</div>
 			</div>
 			<div class="section">
-				<h3>Strategie vorbereiten</h3>
+				<h3>Flotte positionieren</h3>
 				<Matchfield v-on:leave-game="leaveGame()" />
 			</div>
 		</div>
+		<div
+			class="alert mt-2 fixed-bottom mx-5"
+			v-on:click="hideMessage()"
+			v-bind:class="{
+				'alert-info': message.state == 'info',
+				'alert-danger': message.state == 'danger',
+				'alert-success': message.state == 'success',
+				'alert-warning': message.state == 'warning'
+			}"
+			v-if="message.show"
+			v-html="message.msg"
+		></div>
 	</div>
 </template>
 
@@ -86,7 +124,13 @@ export default {
 			ingamePlayers: [],
 			minPlayers: 0,
 			maxPlayers: 0,
-			fieldsize: 0
+			fieldsize: 0,
+			public: false,
+			message: {
+				show: false,
+				msg: '',
+				state: 'info'
+			}
 		};
 	},
 	components: {
@@ -140,10 +184,21 @@ export default {
 						game.gameCode,
 						this.player.id
 					);
-				}
 
-				// add socket event for user joining
-				this.$socket.emit('playerJoinGame');
+					// add socket event for user joining
+					this.$socket.emit('playerJoinGame', {
+						gameCode: game.gameCode,
+						player: this.player
+					});
+
+					// message for other players
+					this.$socket.emit('waitingMatchMessage', {
+						gameCode: game.gameCode,
+						player: this.player,
+						message: `<b>${this.player.username}</b> hat das Spiel betreten.`,
+						state: 'info'
+					});
+				}
 
 				// set game global for this component
 				this.game = game;
@@ -158,6 +213,9 @@ export default {
 				this.minPlayers = this.game.minPlayers;
 				this.maxPlayers = this.game.maxPlayers;
 				this.fieldsize = this.game.fieldsize;
+				this.public = this.game.public;
+
+				this.loaded = true;
 
 				return;
 			})
@@ -173,7 +231,10 @@ export default {
 			});
 	},
 	sockets: {
-		updateGameVars: function() {
+		updateGameVars: function(data) {
+			// only when gameCode current game
+			if (data.gameCode !== this.game.gameCode) return false;
+
 			// update game
 			const gameCode = this.$route.params.gameCode;
 			GameService.getGame(gameCode).then(async game => {
@@ -185,9 +246,31 @@ export default {
 				// update admin name
 				this.getAdminName();
 			});
+		},
+		waitingMatchMessage: function(data) {
+			// only when gameCode current game
+			if (data.gameCode !== this.game.gameCode) return false;
+
+			// if not same player
+			if (data.player.id === this.player.id) return false;
+
+			this.showMessage(data.message, data.state);
 		}
 	},
 	methods: {
+		showMessage(msg, state = 'info', hide = 3) {
+			this.message.msg = msg;
+			this.message.state = state;
+			this.message.show = true;
+
+			clearTimeout(this.message.timeout);
+			this.message.timeout = setTimeout(() => {
+				this.hideMessage();
+			}, hide * 1000);
+		},
+		hideMessage() {
+			this.message.show = false;
+		},
 		async getPlayers() {
 			let playerString = '';
 			const players = await PlayerService.getPlayers();
@@ -198,12 +281,14 @@ export default {
 
 				playerString += player.username;
 
-				playerString += player.ready ? ' (bereit)' : ' (nicht bereit)';
+				playerString += player.ready
+					? '<span class="badge badge-success ml-1">bereit</span>'
+					: '<span class="badge badge-danger ml-1">nicht bereit</span>';
 
 				playerString += i + 1 === playerIDs.length ? '' : ', ';
 			}
 
-			this.ingamePlayers = playerString;
+			this.ingamePlayers = '<b>Spieler:</b> ' + playerString;
 		},
 		async getAdminName() {
 			const admin = await PlayerService.getPlayer(this.game.playerIDs[0]);
@@ -220,7 +305,18 @@ export default {
 			this.$store.dispatch('setPlayer', null);
 
 			// update socket view
-			this.$socket.emit('playerLeaveGame');
+			this.$socket.emit('playerLeaveGame', {
+				gameCode: this.game.gameCode,
+				player: this.player
+			});
+
+			// message for other players
+			this.$socket.emit('waitingMatchMessage', {
+				gameCode: this.game.gameCode,
+				player: this.player,
+				message: `<b>${this.player.username}</b> hat das Spiel verlassen.`,
+				state: 'info'
+			});
 
 			// redirect to home
 			this.$router.push({
@@ -246,7 +342,7 @@ export default {
 					let pl = await PlayerService.getPlayer(this.game.playerIDs[i]);
 					pl.ready = false;
 					pl.ships = [];
-					PlayerService.updatePlayer(pl);
+					await PlayerService.updatePlayer(pl);
 				}
 			}
 
@@ -254,12 +350,13 @@ export default {
 			this.game.minPlayers = parseInt(this.minPlayers);
 			this.game.maxPlayers = parseInt(this.maxPlayers);
 			this.game.fieldsize = parseInt(this.fieldsize);
+			this.game.public = this.public;
 
 			// update game
 			this.game = await GameService.updateGame(this.game);
 
 			// update game for other players
-			this.$socket.emit('updateGameVars');
+			this.$socket.emit('updateGameVars', { gameCode: this.game.gameCode });
 		}
 	}
 };

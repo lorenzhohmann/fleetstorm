@@ -1,10 +1,8 @@
 <template>
 	<div>
-		<h1 class="main-headline homescreen">
-			Battleship
-		</h1>
+		<img src="../../public/img/logo.png" alt="Logo" class="logo" />
 		<div class="button-container px-5">
-			<router-link class="btn btn-success btn-block btn-lg" to="game/create"
+			<router-link class="btn btn-primary btn-block btn-lg" to="game/create"
 				><i class="fas fa-plus mr-3"></i>Spiel erstellen</router-link
 			>
 			<router-link class="btn btn-primary btn-block btn-lg" to="game/enter"
@@ -14,10 +12,15 @@
 					>{{ runningGames }}</span
 				></router-link
 			>
-			<router-link class="btn btn-dark btn-block btn-lg mt-5" to="imprint"
+			<router-link
+				class="btn btn-info btn-block btn-lg disabled"
+				to="instruction"
+				><i class="fas fa-chalkboard-teacher mr-3"></i>Anleitung</router-link
+			>
+			<router-link class="btn btn-secondary btn-block mt-5" to="imprint"
 				><i class="fas fa-info mr-3"></i>Impressum</router-link
 			>
-			<router-link class="btn btn-dark btn-block btn-lg" to="privacy"
+			<router-link class="btn btn-secondary btn-block" to="privacy"
 				><i class="fas fa-shield-alt mr-3"></i>Datenschutz</router-link
 			>
 			<div class="alert alert-info mt-5" v-if="error">{{ error }}</div>
@@ -44,7 +47,7 @@ export default {
 	methods: {
 		async loadRunningGames() {
 			const games = await GameService.getGames();
-			this.runningGames = games.length;
+			this.runningGames = games.filter(game => game.public).length;
 		}
 	}
 };

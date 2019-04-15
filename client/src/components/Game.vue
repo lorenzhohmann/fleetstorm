@@ -1,8 +1,6 @@
 <template>
 	<div>
-		<h1 class="main-headline">
-			Battleship
-		</h1>
+		<img src="../../public/img/logo.png" alt="Logo" class="logo sm" />
 		<transition name="fade" mode="out-in">
 			<router-view />
 		</transition>

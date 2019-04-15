@@ -31,6 +31,7 @@ module.exports = class Manager {
 				g.playerIDs = game.playerIDs;
 				g.gameCode = game.gameCode;
 				g.fieldsize = game.fieldsize;
+				g.public = game.public;
 				g.nextPlayerIndex = game.nextPlayerIndex;
 				g.winner = game.winner;
 			}
@@ -51,6 +52,7 @@ module.exports = class Manager {
 				p.ships = player.ships;
 				p.ready = player.ready;
 				p.hits = player.hits;
+				p.dead = player.dead;
 			}
 		});
 	}

@@ -36,7 +36,7 @@
 			</button>
 			<div class="alert alert-danger mt-3" v-if="error">{{ error }}</div>
 
-			<div v-if="games.length">
+			<div v-if="publicGames > 0">
 				<h3 class="mt-10">Aus vorhandenen Spielen auswählen</h3>
 				<div class="game-list row">
 					<div
@@ -44,7 +44,7 @@
 						v-for="game in games"
 						v-bind:key="game.id"
 					>
-						<div class="card game-entry my-2">
+						<div class="card game-entry my-2" v-if="game.public">
 							<div class="card-header">{{ game.gameCode }}</div>
 							<div class="card-body">
 								<h6
@@ -95,7 +95,8 @@ export default {
 			gameCode: '',
 			username: '',
 			error: '',
-			games: []
+			games: [],
+			publicGames: 0
 		};
 	},
 	created() {
@@ -104,6 +105,7 @@ export default {
 	methods: {
 		async getGames() {
 			this.games = await GameService.getGames();
+			this.publicGames = this.games.filter(game => game.public).length;
 		},
 		getStatus(game) {
 			switch (game.state) {
@@ -119,7 +121,7 @@ export default {
 			}
 		},
 		async reload() {
-			this.games = await GameService.getGames();
+			this.getGames();
 		},
 		async enterGame(gameCode) {
 			// validate username

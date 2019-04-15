@@ -22,11 +22,13 @@
 				<button
 					v-bind:disabled="player.ready"
 					class="btn btn-primary mr-3 btn-mobile-block col-12 col-md-4"
+					v-bind:class="{ disabled: player.ready }"
 					v-on:click="positionShipsRandomly(player)"
 				>
 					<i class="fas fa-random mr-3"></i>Schiffe zufällig anordnen
 				</button>
 				<button
+					v-if="false"
 					class="btn btn-primary mr-3 col-12 col-md-2"
 					title="Spieldaten aktualisieren"
 					v-on:click="refreshData()"
@@ -35,19 +37,19 @@
 				</button>
 				<button
 					v-bind:disabled="player.ready"
-					v-bind:class="{ pulse: !player.ready }"
+					v-bind:class="{ pulse: !player.ready, disabled: player.ready }"
 					class="btn btn-success mr-1 btn-mobile-block animated infinite slower col-12 col-md-3"
 					v-on:click="readyPlayer()"
 				>
 					<i class="fas fa-check mr-3"></i>Ich bin bereit!
 				</button>
 			</div>
-			<div class="row mt-5">
+			<div class="row mt-3">
 				<button
 					class="btn btn-secondary mr-5 btn-mobile-block col-12 col-md-3"
 					v-on:click="leaveGame()"
 				>
-					<i class="fas fa-times mr-3"></i>Spiel verlassen
+					<i class="fas fa-door-open mr-3"></i>Spiel verlassen
 				</button>
 			</div>
 			<p class="small mt-2" v-if="player.ready">
@@ -139,7 +141,10 @@ export default {
 		this.positionShips();
 	},
 	sockets: {
-		updateGameVars: function() {
+		updateGameVars: function(data) {
+			// only when gameCode current game
+			if (data.gameCode !== this.game.gameCode) return false;
+
 			// update game
 			const gameCode = this.$route.params.gameCode;
 			GameService.getGame(gameCode).then(async game => {
@@ -163,7 +168,7 @@ export default {
 			this.$emit('leave-game');
 		},
 		refreshData() {
-			this.$socket.emit('updateGameVars');
+			this.$socket.emit('updateGameVars', { gameCode: this.game.gameCode });
 		},
 		positionShips() {
 			// if user has already position ships
@@ -338,7 +343,15 @@ export default {
 			}
 
 			// update game
-			this.$socket.emit('updateGameVars');
+			this.$socket.emit('updateGameVars', { gameCode: this.game.gameCode });
+
+			// message for other players
+			this.$socket.emit('waitingMatchMessage', {
+				gameCode: this.game.gameCode,
+				player: this.player,
+				message: `<b>${this.player.username}</b> ist jetzt bereit.`,
+				state: 'success'
+			});
 		}
 	}
 };

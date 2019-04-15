@@ -37,6 +37,7 @@ import PlayerService from '@/services/PlayerService.js';
 
 export default {
 	name: 'CreateGame',
+	props: ['title'],
 	data() {
 		return {
 			username: '',

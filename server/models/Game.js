@@ -11,6 +11,7 @@ module.exports = class Game {
 		this.playerIDs = [];
 		this.gameCode = gameCode;
 		this.fieldsize = 10;
+		this.public = false;
 		this.nextPlayerIndex = -1;
 		this.winner = null;
 	}

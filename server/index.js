@@ -13,22 +13,25 @@ app.use(cors());
 
 io.on('connection', function(socket) {
 	socket.on('playerJoinGame', data => {
-		io.emit('updateGameVars');
+		io.emit('playerJoinGame', data);
+		io.emit('updateGameVars', data);
 	});
+
 	socket.on('updateGameVars', data => {
-		io.emit('updateGameVars');
+		io.emit('updateGameVars', data);
+	});
+
+	socket.on('waitingMatchMessage', data => {
+		io.emit('waitingMatchMessage', data);
 	});
 
 	socket.on('playerLeaveGame', data => {
-		io.emit('updateGameVars');
+		io.emit('playerLeaveGame', data);
+		io.emit('updateGameVars', data);
 	});
 
 	socket.on('redirectToPlayingArea', data => {
 		io.emit('redirectToPlayingArea', data);
-	});
-
-	socket.on('disconnect', data => {
-		io.emit('updateGameVars');
 	});
 
 	// sockets for playing game

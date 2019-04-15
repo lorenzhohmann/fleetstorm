@@ -10,6 +10,8 @@
 					class="btn btn-primary mr-1 mb-1"
 					v-on:click="changeEntity(player)"
 					v-for="player in otherPlayers"
+					v-bind:disabled="player.dead"
+					v-bind:class="{ disabled: player.dead }"
 					v-bind:key="player.id"
 				>
 					<i class="fas fa-skull mr-3"></i>{{ player.username }}
@@ -17,16 +19,29 @@
 			</div>
 		</div>
 
+		<div class="dead-player-container" v-if="player.dead">
+			<h3>Deine Flotte ist komplett zerstört!</h3>
+
+			<!-- TODO -->
+			<router-link class="btn btn-success btn-block" to="/"
+				><i class="fas fa-home mr-3"></i>Zurück zum Homescreen</router-link
+			>
+		</div>
+
 		<div class="choose-player-container section" v-if="entity.id && !ended">
 			<h3>
 				Gebiet von <b>{{ entity.username }}</b>
 			</h3>
-			<ShipInfoComponent v-bind:sunkShips="sunkShips" />
+			<ShipInfoComponent
+				v-bind:sunkShips="sunkShips"
+				v-bind:player="player"
+				v-bind:entity="entity"
+			/>
 			<Field v-bind:game="game" v-bind:allowShoot="true" />
 
 			<button
 				class="btn btn-secondary mt-5 btn-mobile-block"
-				v-if="game.playerIDs.length > 2"
+				v-if="game.playerIDs.length > 2 && !firstShot"
 				v-on:click="showChangeEntity()"
 			>
 				Anderen Gegner wählen
@@ -41,10 +56,11 @@
 				<b>{{ playerInTurn.username }}</b> ist am Zug
 			</h3>
 			<div class="spectator-field">
-				<h3 class="mt-5">
-					Deine Flotte:
-				</h3>
-				<ShipInfoComponent v-bind:sunkShips="sunkShips" />
+				<ShipInfoComponent
+					v-bind:sunkShips="sunkShips"
+					v-bind:player="player"
+					v-bind:entity="player"
+				/>
 				<Field v-bind:game="game" v-bind:allowShoot="false" />
 			</div>
 		</div>
@@ -69,6 +85,7 @@
 
 		<div
 			class="alert mt-2 fixed-bottom mx-5"
+			v-on:click="hideMessage()"
 			v-bind:class="{
 				'alert-info': message.state == 'info',
 				'alert-danger': message.state == 'danger',
@@ -116,7 +133,8 @@ export default {
 			playerInTurn: {},
 			otherPlayers: [],
 			entity: {},
-			reloadGameButton: false
+			reloadGameButton: false,
+			firstShot: false
 		};
 	},
 	async created() {
@@ -149,7 +167,6 @@ export default {
 		setTimeout(() => {
 			this.reloadGameButton = true;
 		}, 1000);
-		//TODO CHANGE
 	},
 	methods: {
 		fillFields() {
@@ -232,12 +249,11 @@ export default {
 				}
 			});
 			if (hitted) {
-				// this.showMessage(
-				// 	'Dieses Feld wurde bereits beschossen. Bitte wähle ein anderes aus.',
-				// 	'warning'
-				// );
 				return false;
 			}
+
+			// set first shot
+			this.firstShot = true;
 
 			// add hit to entities field
 			this.entity.hits.push({
@@ -257,12 +273,6 @@ export default {
 				if (ship.x === x && ship.y === y && !ship.hit) {
 					ship.hit = true;
 					field.shipHit = true;
-					this.showMessage(
-						`Deine Bombe ist auf dem Schiff von <b>${
-							this.entity.username
-						}</b> gelandet! Sehr gut!`,
-						'info'
-					);
 					shipHit = true;
 					this.shooted = false;
 
@@ -310,48 +320,89 @@ export default {
 				}
 			});
 
-			// check if all ships down => show end sequence
+			// if player dead
 			const hittedShipParts = this.entity.ships.filter(ship => ship.hit);
 			let shipPartsSunk = hittedShipParts.length;
-			if (shipPartsSunk === this.entity.ships.length && shipPartsSunk > 0) {
-				this.$socket.emit('playingUpdate', {
-					gameCode: this.game.gameCode,
-					attacker: this.player,
-					type: 'winner'
-				});
+			const allShipsDown =
+				shipPartsSunk === this.entity.ships.length && shipPartsSunk > 0;
+			if (allShipsDown) {
+				// set to death on server
+				this.entity.dead = true;
+				this.entity = await PlayerService.updatePlayer(this.entity);
+
 				this.showMessage(
-					`Glückwunsch, Soldat! Du hast die Schlacht gewonnen!`,
+					`Glückwunsch, Soldat! Die gesamte Flotte von ${
+						this.entity.username
+					} ist zerstört!`,
 					'success'
 				);
 
-				// set winner to game
-				this.game.winner = this.player;
+				// check if last player alive
+				const lastPlayerAlive = await this.isLastPlayerAlive(this.player);
+				console.log('last player alive:' + lastPlayerAlive);
+				if (lastPlayerAlive) {
+					console.log('last player alive');
+					// tell other players
+					this.$socket.emit('playingUpdate', {
+						gameCode: this.game.gameCode,
+						attacker: this.player,
+						type: 'winner'
+					});
 
-				this.game.state = 2;
-				this.game = await GameService.updateGame(this.game);
+					// set winner to game
+					this.game.winner = this.player;
 
-				// redirect to home screen
-				setTimeout(() => {
-					this.$router.push(`/match/${this.game.gameCode}/ending`);
-				}, 3000);
+					this.game.state = 2;
+					this.game = await GameService.updateGame(this.game);
 
-				// TODO for ranking
-				// this.$socket.emit('deadPlayer', {gameCode: this.gameCode, loser: this.entity});
+					// redirect to home screen
+					setTimeout(() => {
+						this.$router.push(`/match/${this.game.gameCode}/ending`);
+					}, 3000);
+					return false;
+				}
 			}
 
 			// update entity
 			this.entity = await PlayerService.updatePlayer(this.entity);
 
+			this.$socket.emit('playingUpdate', {
+				gameCode: this.game.gameCode,
+				attacker: this.player,
+				entity: this.entity,
+				type: 'updateSpectatorView'
+			});
+
 			// when no ship hit => next player
-			if (!shipHit) {
+			if (!shipHit || allShipsDown) {
 				this.inRound = false;
 				this.$socket.emit('nextPlayer', { gameCode: this.gameCode });
 			}
+		},
+		async isLastPlayerAlive(player) {
+			return new Promise((resolve, reject) => {
+				const alivePlayerIDs = [];
+				this.game.playerIDs.forEach(async playerID => {
+					let pl = await PlayerService.getPlayer(playerID);
+					console.log(pl);
+					if (!pl.dead) alivePlayerIDs.push(pl.id);
+				});
+				resolve(alivePlayerIDs.length === 1 && alivePlayerIDs[0] == player.id);
+			});
 		},
 		showChangeEntity() {
 			this.entity = {};
 		},
 		async changeEntity(entity) {
+			// show error when entity dead
+			if (entity.dead) {
+				this.showMessage(
+					`Die Flotte von ${entity.username} ist bereits vernichtet.`,
+					'danger'
+				);
+				return false;
+			}
+
 			this.entity = entity;
 
 			// get current game to avoid update problems
@@ -404,7 +455,7 @@ export default {
 		},
 		reloadGame() {
 			this.$socket.emit('nextPlayer', { gameCode: this.game.gameCode });
-			this.showMessage('Spiel nachladen..!', 'warning');
+			this.showMessage('Spiel wird nachgeladen!', 'warning');
 		}
 	},
 	sockets: {
@@ -419,6 +470,7 @@ export default {
 				// reset view data
 				this.entity = {};
 				this.shooted = false;
+				this.firstShot = false;
 				this.hideMessage();
 
 				// get refreshed game var
@@ -457,9 +509,13 @@ export default {
 		},
 		playingUpdate: async function(data) {
 			// if emit is for current game
-			if (this.game.gameCode == data.gameCode) {
+			if (this.game.gameCode === data.gameCode) {
 				// dont show message when player is current player
-				if (this.player.id == data.attacker.id) return false;
+				if (
+					this.player.id === data.attacker.id &&
+					data.type !== 'updateSpectatorView'
+				)
+					return false;
 
 				switch (data.type) {
 					case 'hit':
@@ -478,14 +534,30 @@ export default {
 							'info'
 						);
 						break;
+					case 'playerDead':
+						this.showMessage(
+							`<b>${
+								data.attacker.username
+							}</b> hat die komplette Flotte von <b>${
+								data.entity.username
+							}</b> zerstört!`,
+							'success'
+						);
+						break;
 					case 'updateSpectatorView':
-						this.game = await GameService.getGame(this.game.gameCode);
+						// update only when entity player
+						if (this.player.id === data.entity.id) {
+							this.player = await PlayerService.getPlayer(this.player.id);
 
-						console.log(data);
+							this.fillOwnFields();
+						}
 						break;
 					case 'winner':
 						this.ended = true;
-						this.showMessage('Der Krieg ist vorbei!', 'success');
+						this.showMessage(
+							'Der Krieg ist vorbei! Ist gibt noch einen überlebenden Captain..!',
+							'success'
+						);
 
 						setTimeout(() => {
 							this.$router.push(`/match/${this.game.gameCode}/ending`);

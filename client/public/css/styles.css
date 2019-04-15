@@ -12,6 +12,10 @@ h1 {
 	font-family: 'Germania One', cursive;
 }
 
+p {
+	margin-bottom: 0.5rem;
+}
+
 #bg {
 	background-image: url('../img/background-2.jpg');
 	background-repeat: no-repeat;
@@ -26,6 +30,15 @@ h1 {
 
 	width: 100vw;
 	height: 100vh;
+}
+
+.logo {
+	width: 100%;
+}
+.logo.sm {
+	width: 80%;
+	margin: 0 auto;
+	display: block;
 }
 
 .main-headline {
@@ -53,16 +66,29 @@ h1 {
 .section {
 	/*	border-top: 1px solid #a7a7a7;
 	border-bottom: 1px solid #a7a7a7;*/
-	padding: 1rem 0;
+	padding-bottom: 2rem;
 }
 
 .button-container {
-	margin-top: 10rem;
 }
 
 .btn-primary {
 	background-color: #08628a;
 	border-color: #08628a;
+}
+.btn-primary:hover {
+	background-color: #1c79a2;
+	border-color: #1c79a2;
+}
+.btn-primary:not(:disabled):not(.disabled).active,
+.btn-primary:not(:disabled):not(.disabled):active,
+.show > .btn-primary.dropdown-toggle {
+	background-color: #1c79a2;
+	border-color: #1c79a2;
+}
+.btn-group-lg > .btn,
+.btn-lg {
+	padding: 1.5rem 1rem;
 }
 .btn {
 	cursor: pointer;
@@ -264,7 +290,7 @@ h3 {
 /* TRANSITIONS */
 .fade-enter-active,
 .fade-leave-active {
-	transition-duration: 0.3s;
+	transition-duration: 0.2s;
 	transition-property: opacity;
 	transition-timing-function: ease;
 }

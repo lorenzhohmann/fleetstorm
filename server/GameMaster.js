@@ -17,12 +17,16 @@ module.exports = class GameMaster {
 
 		// get next player id
 		let playerInTurn;
-		game.nextPlayerIndex++;
 
-		// set 0 if end of array
-		if (game.nextPlayerIndex >= game.playerIDs.length) game.nextPlayerIndex = 0;
+		while (!playerInTurn || playerInTurn.dead) {
+			game.nextPlayerIndex++;
 
-		playerInTurn = Manager.getPlayer(game.playerIDs[game.nextPlayerIndex]);
+			// set 0 if end of array
+			if (game.nextPlayerIndex >= game.playerIDs.length)
+				game.nextPlayerIndex = 0;
+
+			playerInTurn = Manager.getPlayer(game.playerIDs[game.nextPlayerIndex]);
+		}
 
 		// emit to frontend
 		setTimeout(() => {
