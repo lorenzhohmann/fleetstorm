@@ -1,6 +1,10 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './components/Home.vue';
+import Start from './components/Start.vue';
+
+import Site from './components/Site.vue';
+
 import Game from './components/Game.vue';
 import CreateGame from './components/CreateGame.vue';
 import EnterGame from './components/EnterGame.vue';
@@ -27,53 +31,64 @@ export default new Router({
       component: Home
     },
     {
-      path: '/imprint',
-      name: 'imprint',
-      component: Imprint
-    },
-    {
-      path: '/instruction',
-      name: 'instruction',
-      component: Instruction
-    },
-    {
-      path: '/privacy',
-      name: 'privacy',
-      component: Privacy
-    },
-    {
-      path: '/match/:gameCode',
-      component: Match,
+      path: '/',
+      component: Site,
       children: [
         {
-          path: '/',
-          redirect: '/'
+          path: '/start',
+          name: 'start',
+          component: Start
         },
         {
-          path: 'waiting',
-          component: WaitingMatch
+          path: '/imprint',
+          name: 'imprint',
+          component: Imprint
         },
         {
-          path: 'playing',
-          component: PlayingMatch
+          path: '/instruction',
+          name: 'instruction',
+          component: Instruction
         },
         {
-          path: 'ending',
-          component: EndingMatch
-        }
-      ]
-    },
-    {
-      path: '/game',
-      component: Game,
-      children: [
-        {
-          path: 'create',
-          component: CreateGame
+          path: '/privacy',
+          name: 'privacy',
+          component: Privacy
         },
         {
-          path: 'enter',
-          component: EnterGame
+          path: '/match/:gameCode',
+          component: Match,
+          children: [
+            {
+              path: '/',
+              redirect: '/'
+            },
+            {
+              path: 'waiting',
+              component: WaitingMatch
+            },
+            {
+              path: 'playing',
+              component: PlayingMatch
+            },
+            {
+              path: 'ending',
+              component: EndingMatch
+            }
+          ]
+        },
+        {
+          path: '/game',
+          component: Game,
+          children: [
+            {
+              path: 'create',
+              component: CreateGame
+            },
+            {
+              path: 'enter',
+              component: EnterGame
+            }
+          ]
         }
       ]
     },

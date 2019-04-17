@@ -162,7 +162,7 @@ export default {
 			});
 		} catch (err) {
 			this.$router.push({
-				name: 'home',
+				name: 'start',
 				params: {
 					error: 'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #PM)'
 				}
@@ -172,7 +172,7 @@ export default {
 		// show refresh button after 10 seconds
 		setTimeout(() => {
 			this.reloadGameButton = true;
-		}, 1000);
+		}, 10000);
 	},
 	methods: {
 		fillFields() {
@@ -426,7 +426,7 @@ export default {
 				// if player is not in game
 				if (!GameService.playerIsInGame(this.player, this.game)) {
 					this.$router.push({
-						name: 'home',
+						name: 'start',
 						params: {
 							error: 'Ich glaube nicht, dass du hier richtig bist..'
 						}
@@ -471,7 +471,7 @@ export default {
 
 			// redirect to home
 			this.$router.push({
-				name: 'home',
+				name: 'start',
 				params: {}
 			});
 		}

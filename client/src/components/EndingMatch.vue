@@ -39,7 +39,7 @@ export default {
 
 				if (!this.game || !this.player) {
 					this.$router.push({
-						name: 'home',
+						name: 'start',
 						params: {
 							error: 'Der Krieg ist vorbei!'
 						}
@@ -48,7 +48,7 @@ export default {
 
 				// if game not in ending state
 				if (this.game.state !== 2) {
-					this.$router.push('/');
+					this.$router.push('/start');
 					return false;
 				}
 
@@ -64,7 +64,7 @@ export default {
 			});
 		} catch (err) {
 			this.$router.push({
-				name: 'home',
+				name: 'start',
 				params: {
 					error: 'Sorry, da ist etwas schief gelaufen.. (Fehlercode: #EM)'
 				}

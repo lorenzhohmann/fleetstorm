@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=/favicon.ico><meta name=description content="Schiffe versenken - Spiele im Team oder alleine und zerstöre die gegnerische Flotte!"><meta name=keywords content="Online, Multiplayer, Team, ohne Team, Schiffe, versenken, WebApp, ohne App, ohne Anmeldung, Anonym, bis 24 Spieler, verschiedene Spielfeldgrößen, Einstellungen, Custom"><link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css integrity=sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.8.1/css/all.css integrity=sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css><link rel=stylesheet href=/css/styles.css><link rel=stylesheet href=/css/responsive.css><title>Battleship - Schiffe versenken Online | Kämpfe im Team oder alleine!</title><meta name=theme-color content=#08628a><link rel=stylesheet type=text/css href=//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css><script src=//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js></script><script>window.addEventListener('load', function() {
+<!DOCTYPE html><html lang=de><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=/favicon.ico><meta name=description content="Schiffe versenken - Spiele im Team oder alleine und zerstöre die gegnerische Flotte!"><meta name=keywords content="Online, Multiplayer, Team, ohne Team, Schiffe, versenken, WebApp, ohne App, ohne Registrierung, ohne Anmeldung, Anonym, bis 24 Spieler, verschiedene Spielfeldgrößen, Einstellungen, Custom"><link rel=stylesheet href=https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css integrity=sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T crossorigin=anonymous><link rel=stylesheet href=https://use.fontawesome.com/releases/v5.8.1/css/all.css integrity=sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf crossorigin=anonymous><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css><link rel=stylesheet href=/css/styles.css><link rel=stylesheet href=/css/responsive.css><title>Battleship - Schiffe versenken Online | Kämpfe im Team oder alleine!</title><meta name=theme-color content=#08628a><link rel=stylesheet type=text/css href=//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.css><script src=//cdnjs.cloudflare.com/ajax/libs/cookieconsent2/3.1.0/cookieconsent.min.js></script><script>window.addEventListener('load', function() {
         window.cookieconsent.initialise({
           palette: {
             popup: {
@@ -18,11 +18,18 @@
             href: '/privacy'
           }
         });
-      });</script><link href=/css/app.01fa0fd1.css rel=preload as=style><link href=/js/app.a46fc362.js rel=preload as=script><link href=/js/chunk-vendors.f9dc61c2.js rel=preload as=script><link href=/css/app.01fa0fd1.css rel=stylesheet></head><body><noscript><strong>We're sorry but client doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script src=https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js></script><script>$(function() {
+      });</script><link href=/css/app.b602f848.css rel=preload as=style><link href=/js/app.f9bcd5f7.js rel=preload as=script><link href=/js/chunk-vendors.f9dc61c2.js rel=preload as=script><link href=/css/app.b602f848.css rel=stylesheet></head><body><noscript><strong>We're sorry but client doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script src=https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js></script><script>$(function() {
         $(window).on('load', function() {
           $('.lds-ring').fadeOut(800);
           $('.preloader')
             .delay(800)
             .fadeOut(800);
         });
-      });</script><script src=/js/chunk-vendors.f9dc61c2.js></script><script src=/js/app.a46fc362.js></script></body></html>
+
+        // smoother scroll on anchor click
+        $('a[href^="#"]:not(.footer-link)').click(function() {
+          var element = $($(this).attr('href'));
+
+          $('html, body').animate({ scrollTop: element.offset().top });
+        });
+      });</script><script src=/js/chunk-vendors.f9dc61c2.js></script><script src=/js/app.f9bcd5f7.js></script></body></html>

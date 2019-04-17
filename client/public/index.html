@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -13,7 +13,7 @@
     />
     <meta
       name="keywords"
-      content="Online, Multiplayer, Team, ohne Team, Schiffe, versenken, WebApp, ohne App, ohne Anmeldung, Anonym, bis 24 Spieler, verschiedene Spielfeldgrößen, Einstellungen, Custom"
+      content="Online, Multiplayer, Team, ohne Team, Schiffe, versenken, WebApp, ohne App, ohne Registrierung, ohne Anmeldung, Anonym, bis 24 Spieler, verschiedene Spielfeldgrößen, Einstellungen, Custom"
     />
 
     <!-- BOOTSTRAP -->
@@ -95,6 +95,13 @@
           $('.preloader')
             .delay(800)
             .fadeOut(800);
+        });
+
+        // smoother scroll on anchor click
+        $('a[href^="#"]:not(.footer-link)').click(function() {
+          var element = $($(this).attr('href'));
+
+          $('html, body').animate({ scrollTop: element.offset().top });
         });
       });
     </script>

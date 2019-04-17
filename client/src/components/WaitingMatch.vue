@@ -159,7 +159,7 @@ export default {
 					game.playerIDs.length >= game.maxPlayers
 				) {
 					this.$router.push({
-						name: 'home',
+						name: 'start',
 						params: {
 							error: 'Die maximale Spieleranzahl ist bereits erreicht.'
 						}
@@ -170,7 +170,7 @@ export default {
 				// if game state not waiting
 				if (game.state != 0) {
 					this.$router.push({
-						name: 'home',
+						name: 'start',
 						params: {
 							error: 'Das Spiel hat bereits begonnen.'
 						}
@@ -222,7 +222,7 @@ export default {
 			.catch(err => {
 				// no game found => push to home
 				this.$router.push({
-					name: 'home',
+					name: 'start',
 					params: {
 						error: 'Das angeforderte Spiel existiert nicht.'
 					}
@@ -318,7 +318,7 @@ export default {
 
 			// redirect to home
 			this.$router.push({
-				name: 'home',
+				name: 'start',
 				params: {
 					// error: 'Du hast das Spiel verlassen.'
 				}

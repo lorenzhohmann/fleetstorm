@@ -118,7 +118,7 @@
 				Impressum angegebenen Adresse an uns wenden.
 			</p>
 		</div>
-		<router-link class="btn btn-secondary" to="/"
+		<router-link class="btn btn-secondary" to="/start"
 			><i class="fas fa-arrow-left pr-2"></i> Zurück</router-link
 		>
 	</div>
