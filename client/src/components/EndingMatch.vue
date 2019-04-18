@@ -5,7 +5,7 @@
 		</h1>
 		<h5 class="text-center text-primary winner my-4">{{ winner.username }}</h5>
 		<h1 class="text-center">Herzlichen Glückwunsch!</h1>
-		<router-link class="btn btn-success btn-block btn-lg" to="/"
+		<router-link class="btn btn-success btn-block btn-lg" to="/start"
 			><i class="fas fa-home mr-3"></i>Zum Homescreen</router-link
 		>
 	</div>

@@ -10,7 +10,7 @@ Vue.config.productionTip = false;
 Vue.use(
 	new VueSocketIO({
 		debug: false,
-		connection: 'https://battleship.lorenzhohmann.de',
+		connection: process.env.SOCKET_URL || 'https://fleetstorm.lorenzhohmann.de',
 		// connection: 'http://localhost:3000',
 		vuex: {
 			store,
@@ -21,11 +21,6 @@ Vue.use(
 );
 
 new Vue({
-	sockets: {
-		playerJoinGame: function(data) {
-			console.log('player joined game');
-		}
-	},
 	router,
 	store,
 	render: h => h(App)

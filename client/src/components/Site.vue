@@ -10,7 +10,7 @@
 		</div>
 
 		<div class="container">
-			<img src="../../public/img/logo.png" alt="Battleship Logo" class="logo" />
+			<img src="../../public/img/logo.png" alt="FleetStorm Logo" class="logo" />
 			<transition name="fade" mode="out-in">
 				<router-view />
 			</transition>

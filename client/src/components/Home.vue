@@ -18,7 +18,7 @@
 					class="d-inline-block align-top"
 					alt=""
 				/>
-				Battleship
+				FleetStorm
 			</a>
 		</nav>
 
@@ -26,7 +26,7 @@
 			<h1 class="mb-3 mb-sm-2 mb-md-0">
 				<img
 					src="../../public/img/logo.png"
-					alt="Battleship Logo"
+					alt="FleetStorm Logo"
 					class="logo pt-5 animated fadeIn delay-1s"
 				/>
 			</h1>
