@@ -10,7 +10,7 @@ Vue.config.productionTip = false;
 Vue.use(
 	new VueSocketIO({
 		debug: false,
-		connection: process.env.SOCKET_URL || 'https://fleetstorm.lorenzhohmann.de',
+		connection: 'https://fleetstorm.lorenzhohmann.de',
 		// connection: 'http://localhost:3000',
 		vuex: {
 			store,

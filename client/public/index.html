@@ -75,7 +75,6 @@
       sizes="16x16"
       href="<%= BASE_URL %>favicon/favicon-16x16.png"
     />
-    <link rel="manifest" href="/manifest.json" />
     <meta name="msapplication-TileColor" content="#08628a" />
     <meta
       name="msapplication-TileImage"
@@ -165,12 +164,22 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
       $(function() {
+        var tout = setTimeout(function() {
+          clearTimeout(tout);
+          hideLoadingAnimation();
+        }, 5000);
+
         $(window).on('load', function() {
+          clearTimeout(tout);
+          hideLoadingAnimation();
+        });
+
+        function hideLoadingAnimation() {
           $('.lds-ring').fadeOut(800);
           $('.preloader')
             .delay(800)
             .fadeOut(800);
-        });
+        }
 
         // smoother scroll on anchor click
         $('a[href^="#"]:not(.footer-link)').click(function() {
