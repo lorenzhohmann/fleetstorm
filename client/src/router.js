@@ -20,7 +20,6 @@ import Imprint from './components/Imprint.vue';
 import Privacy from './components/Privacy.vue';
 
 Vue.use(Router);
-Vue.use(Meta);
 
 export default new Router({
   mode: 'history',
