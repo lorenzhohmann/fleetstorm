@@ -68,7 +68,7 @@ router.post('/game/:gameCode/removePlayer/:playerID', (req, res) => {
 
 	// delete game when empty
 	if (game.playerIDs.length === 0) {
-		Manager.deleteGame(game);
+		Manager.deleteGame(gameCode);
 		res.status(200).send();
 		return;
 	}

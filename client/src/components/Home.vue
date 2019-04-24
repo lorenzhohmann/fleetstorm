@@ -84,7 +84,7 @@
 					</h3>
 					<p class="text-center px-1 px-sm-2 px-md-4 px-lg-3 px-xl-5">
 						Du benötigst keine App oder Programm um zu spielen. Einfach im
-						Browser öffnen uns losspielen. Außerdem hast du als Spielleiter die
+						Browser öffnen und losspielen. Außerdem hast du als Spielleiter die
 						Möglichkeiten, Einstellungen wie Spielfeldgröße oder maximale
 						Spieleranzahl anzupassen.
 					</p>

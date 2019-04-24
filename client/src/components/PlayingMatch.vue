@@ -228,15 +228,36 @@ export default {
 
 						// if ship is hitted completely
 						if (shipHits === ship.length) {
-							// field.hasShip = true;
-							// field.start = ship.start;
-							// field.end = ship.end;
-							// field.orientation = ship.orientation;
 							this.sunkShips.push({
 								id: ship.id,
 								length: ship.length
 							});
 						}
+					}
+				});
+			});
+
+			// when entity field => show sunk ships
+			if(player.id !== this.player.id) {
+				this.showSunkShips();
+			}
+
+		},
+		showSunkShips(entity) {
+
+			// loop over all sunk ships
+			this.sunkShips.filter(s => {
+
+				// loop all ships of entity and show sunk
+				this.entity.ships.forEach(ship => {
+
+					if(ship.id === s.id) {
+						let field = this.getField(ship.x, ship.y);
+						field.ship = true;
+						field.end = ship.end;
+						field.start = ship.start;
+						field.orientation = ship.orientation;
+						field.special = ship.special;
 					}
 				});
 			});
@@ -314,6 +335,8 @@ export default {
 							id: ship.id,
 							length: ship.length
 						});
+
+						this.showSunkShips();
 
 						// send message to entity
 						this.$socket.emit('playingUpdate', {

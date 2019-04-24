@@ -335,6 +335,7 @@ export default {
 			this.game = await GameService.getGame(this.game.gameCode);
 
 			// reset ships and ready state when fieldsize is changed
+			// TODO find error
 			if (this.game.fieldsize != this.fieldsize) {
 				for (let i = 0; i < this.game.playerIDs.length; i++) {
 					let pl = await PlayerService.getPlayer(this.game.playerIDs[i]);

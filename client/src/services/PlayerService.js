@@ -19,7 +19,7 @@ export default {
 		return axios.get(url).then(response => response.data);
 	},
 	validateUsername(username) {
-		return username.match(/^[0-9A-Za-z]{3,10}$/g);
+		return username.match(/^[0-9A-Za-z]{3,16}$/g);
 	},
 	updatePlayer(player) {
 		return axios.put(url, { player }).then(response => response.data);

@@ -46,7 +46,7 @@ export default {
 	methods: {
 		async loadRunningGames() {
 			const games = await GameService.getGames();
-			this.runningGames = games.filter(game => game.public).length;
+			this.runningGames = games.filter(game => game.public && game.state === 0).length;
 		}
 	}
 };

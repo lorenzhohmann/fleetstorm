@@ -71,9 +71,12 @@
 	.ship-info-container {
 		width: 450px !important;
 	}
+	.ship-info-container .ship {
+		margin: 0.2rem 0!important;
+	}
 	.ship-info-container .ship > div {
-		height: 30px !important;
-		width: 30px !important;
+		height: 25px !important;
+		width: 25px !important;
 	}
 	.matchfield th {
 		font-size: 25px !important;

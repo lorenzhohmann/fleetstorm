@@ -54,7 +54,7 @@ export default {
 			// validate username
 			if (!PlayerService.validateUsername(this.username)) {
 				this.error =
-					'Der Benutzername darf nur aus Ziffern, Großbuchstaben und Kleinbuchstaben bestehen und muss eine Länge zwischen drei und zehn Zeichen haben.';
+					'Der Benutzername darf nur aus Ziffern, Großbuchstaben und Kleinbuchstaben bestehen und muss eine Länge zwischen drei und 16 Zeichen haben.';
 				return false;
 			}
 

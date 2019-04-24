@@ -18,18 +18,17 @@
             href: '/privacy'
           }
         });
-      });</script><link href=/css/app.8b93e516.css rel=preload as=style><link href=/js/app.2bad9375.js rel=preload as=script><link href=/js/chunk-vendors.f9dc61c2.js rel=preload as=script><link href=/css/app.8b93e516.css rel=stylesheet></head><body><noscript><strong>We're sorry but client doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script src=https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js></script><script>$(function() {
-        var tout = setTimeout(function() {
-          clearTimeout(tout);
+      });</script><link href=/css/app.3a879e40.css rel=preload as=style><link href=/js/app.d7bc239e.js rel=preload as=script><link href=/js/chunk-vendors.f9dc61c2.js rel=preload as=script><link href=/css/app.3a879e40.css rel=stylesheet></head><body><noscript><strong>We're sorry but client doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id=app></div><script src=https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js></script><script>$(function() {
+        var loadingTimeout = setTimeout(function() {
           hideLoadingAnimation();
         }, 5000);
 
         $(window).on('load', function() {
-          clearTimeout(tout);
           hideLoadingAnimation();
         });
 
         function hideLoadingAnimation() {
+          clearTimeout(loadingTimeout);
           $('.lds-ring').fadeOut(800);
           $('.preloader')
             .delay(800)
@@ -42,4 +41,4 @@
 
           $('html, body').animate({ scrollTop: element.offset().top });
         });
-      });</script><script src=/js/chunk-vendors.f9dc61c2.js></script><script src=/js/app.2bad9375.js></script></body></html>
+      });</script><script src=/js/chunk-vendors.f9dc61c2.js></script><script src=/js/app.d7bc239e.js></script></body></html>

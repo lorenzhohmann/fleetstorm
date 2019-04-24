@@ -19,8 +19,8 @@ module.exports = class Manager {
 	static gameCodeExists(gameCode) {
 		return this.getGame(gameCode);
 	}
-	static deleteGame(game) {
-		games = games.filter(g => g.gameCode !== game.gameCode);
+	static deleteGame(gameCode) {
+		games = games.filter(g => g.gameCode !== gameCode);
 	}
 	static updateGame(game) {
 		games.forEach((g, index) => {
