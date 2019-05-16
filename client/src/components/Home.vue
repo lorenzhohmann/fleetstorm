@@ -95,13 +95,7 @@
 			<div class="row">
 				<div class="col-12 col-md-6 text-center text-md-left my-md-0">
 					<p class="text-light m-0 p-0">
-						<i class="fas fa-code mr-2"></i>by
-						<a
-							class="text-light"
-							target="_blank"
-							href="https://lorenzhohmann.de"
-							>Lorenz Hohmann</a
-						>
+						<i class="fas fa-code mr-2"></i>by Lorenz Hohmann
 					</p>
 				</div>
 				<div class="col-12 col-md-6 text-center text-md-right my-md-0">
@@ -115,7 +109,7 @@
 
 <script>
 export default {
-	name: 'home'
+	name: "home"
 };
 </script>
 <style scoped>

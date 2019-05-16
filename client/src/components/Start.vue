@@ -19,7 +19,7 @@
 		<router-link class="btn btn-secondary btn-block" to="privacy"
 			><i class="fas fa-shield-alt mr-3"></i>Datenschutz</router-link
 		>
-		<router-link class="btn btn-dark btn-block" to="/"
+		<router-link class="btn btn-dark btn-block" to=""
 			><i class="fas fa-home mr-3"></i>Das macht uns
 			<u>einmalig</u>!</router-link
 		>
@@ -28,14 +28,14 @@
 </template>
 
 <script>
-import GameService from '@/services/GameService.js';
+import GameService from "@/services/GameService.js";
 
 export default {
-	name: 'start',
+	name: "start",
 	data() {
 		return {
 			runningGames: 0,
-			error: ''
+			error: ""
 		};
 	},
 	created() {
@@ -46,7 +46,9 @@ export default {
 	methods: {
 		async loadRunningGames() {
 			const games = await GameService.getGames();
-			this.runningGames = games.filter(game => game.public && game.state === 0).length;
+			this.runningGames = games.filter(
+				game => game.public && game.state === 0
+			).length;
 		}
 	}
 };
